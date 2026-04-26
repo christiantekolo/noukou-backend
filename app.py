@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator, EmailStr
+from pydantic import BaseModel, Field, validator
 from contextlib import asynccontextmanager
 import os
 import traceback
@@ -10,6 +10,10 @@ from dotenv import load_dotenv
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 
+# SQLAlchemy
+from sqlalchemy import create_engine, Column, String, DateTime, text
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
+
 # Import du pipeline ML existant
 try:
     from pipeline_gps import recommend_for_gps, load_models, load_catalogue
@@ -18,38 +22,78 @@ except ImportError as e:
 
 load_dotenv()
 
-# ── Auth config ──────────────────────────────────────────────
-JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_hex(32))
-JWT_ALGORITHM = "HS256"
+# ============================================================
+# DATABASE SETUP — SQLite local / PostgreSQL sur Railway
+# ============================================================
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./noukou_users.db")
+
+# Railway renvoie parfois "postgres://" (ancien format), on corrige
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# SQLite a besoin de check_same_thread=False
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args, echo=False)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
+
+# ── Modèle utilisateur ──────────────────────────────────────
+class UserModel(Base):
+    __tablename__ = "users"
+
+    email        = Column(String(255), primary_key=True, index=True)
+    name         = Column(String(120), nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+def get_db() -> Session:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ============================================================
+# AUTH CONFIG
+# ============================================================
+JWT_SECRET      = os.getenv("JWT_SECRET", secrets.token_hex(32))
+JWT_ALGORITHM   = "HS256"
 JWT_EXPIRE_HOURS = 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Stockage utilisateurs en mémoire (remplacer par DB en prod)
-_users: dict = {}  # { email: {name, passwordHash} }
+def create_token(data: dict) -> str:
+    payload = data.copy()
+    payload["exp"] = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-# Variables globales d'état
+# ============================================================
+# LIFESPAN : Chargement des modèles ML + création des tables
+# ============================================================
 MODELS_LOADED = False
 
-# ============================================================
-# LIFESPAN : Chargement asynchrone des modèles au démarrage
-# ============================================================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global MODELS_LOADED
+
+    # Créer les tables si elles n'existent pas
+    print("Initialisation de la base de données...")
+    Base.metadata.create_all(bind=engine)
+    print("Tables créées / vérifiées.")
+
     print("Démarrage de l'API NOUKOU...")
     try:
-        print("Chargement des modèles ML en mémoire (RandomForest, Ridge)...")
+        print("Chargement des modèles ML (RandomForest, Ridge)...")
         load_models()
         print("Chargement du catalogue des variétés (Excel)...")
         load_catalogue()
         MODELS_LOADED = True
-        print("Tous les modeles sont charges avec succes.")
+        print("Tous les modèles sont chargés avec succès.")
     except Exception as e:
-        print(f"Erreur lors du chargement des modeles : {e}")
-        # On ne plante pas l'API, on permet au healthcheck de signaler le pb.
+        print(f"Erreur lors du chargement des modèles : {e}")
         MODELS_LOADED = False
-    
+
     yield
     print("Arrêt de l'API NOUKOU.")
 
@@ -59,11 +103,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="NOUKOU-Predict API",
     description="Moteur IA de recommandation agricole — CUBE Togo",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan
 )
 
-# CORS pour autoriser le frontend (local ou distant)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -92,58 +135,72 @@ class AnalyseRequest(BaseModel):
         return v
 
 class RegisterRequest(BaseModel):
-    name: str = Field(..., min_length=2, max_length=80)
-    email: str = Field(...)
+    name:     str = Field(..., min_length=2, max_length=80)
+    email:    str = Field(...)
     password: str = Field(..., min_length=8)
 
 class LoginRequest(BaseModel):
-    email: str
+    email:    str
     password: str
-
-# ── Helpers JWT ──
-def create_token(data: dict) -> str:
-    payload = data.copy()
-    payload["exp"] = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
-    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 # ============================================================
 # ENDPOINTS AUTH
 # ============================================================
 
-@app.post("/api/auth/register")
+@app.post("/api/auth/register", summary="Créer un compte")
 def register(req: RegisterRequest):
-    """Créer un compte utilisateur."""
+    """Crée un nouvel utilisateur et retourne un JWT."""
     email = req.email.strip().lower()
-    if not "@" in email:
+    if "@" not in email:
         raise HTTPException(status_code=400, detail="Email invalide.")
-    if email in _users:
-        raise HTTPException(status_code=409, detail="Un compte avec cet email existe déjà.")
-    _users[email] = {
-        "name": req.name.strip(),
-        "email": email,
-        "passwordHash": pwd_context.hash(req.password)
-    }
+
+    db = SessionLocal()
+    try:
+        existing = db.query(UserModel).filter(UserModel.email == email).first()
+        if existing:
+            raise HTTPException(status_code=409, detail="Un compte avec cet email existe déjà.")
+
+        user = UserModel(
+            email=email,
+            name=req.name.strip(),
+            password_hash=pwd_context.hash(req.password)
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    finally:
+        db.close()
+
     token = create_token({"sub": email, "name": req.name.strip()})
     return {"token": token, "user": {"name": req.name.strip(), "email": email}}
 
-@app.post("/api/auth/login")
+
+@app.post("/api/auth/login", summary="Se connecter")
 def login(req: LoginRequest):
-    """Authentifier un utilisateur et retourner un JWT."""
+    """Authentifie l'utilisateur et retourne un JWT."""
     email = req.email.strip().lower()
-    user = _users.get(email)
-    if not user or not pwd_context.verify(req.password, user["passwordHash"]):
-        # Message générique pour ne pas révéler si l'email existe
+
+    db = SessionLocal()
+    try:
+        user = db.query(UserModel).filter(UserModel.email == email).first()
+    finally:
+        db.close()
+
+    # Message générique : ne pas révéler si l'email existe
+    if not user or not pwd_context.verify(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Identifiants incorrects.")
-    token = create_token({"sub": email, "name": user["name"]})
-    return {"token": token, "user": {"name": user["name"], "email": email}}
+
+    token = create_token({"sub": email, "name": user.name})
+    return {"token": token, "user": {"name": user.name, "email": email}}
+
 
 # ============================================================
-# ENDPOINTS
+# ENDPOINTS PRINCIPAUX
 # ============================================================
 
 @app.get("/health")
 def health_check():
-    """Endpoint pour vérifier la santé de l'API (utile pour Railway/Render)."""
+    """Vérifie la santé de l'API."""
     return {
         "status": "ok" if MODELS_LOADED else "degraded",
         "model_loaded": MODELS_LOADED
@@ -151,52 +208,48 @@ def health_check():
 
 @app.get("/api/zones")
 def get_zones():
-    """Retourne la liste des 5 zones agro-écologiques du Togo."""
+    """Liste des zones agro-écologiques du Togo."""
     return {
         "success": True,
         "zones": [
-            {"nom": "Savanes", "climat_type": "Sec", "cultures_phares": ["Maïs", "Sorgho", "Oignon"]},
-            {"nom": "Kara", "climat_type": "Semi-sec", "cultures_phares": ["Igname", "Maïs", "Coton"]},
-            {"nom": "Centrale", "climat_type": "Tropical", "cultures_phares": ["Igname", "Manioc", "Soja"]},
-            {"nom": "Plateaux", "climat_type": "Humide", "cultures_phares": ["Café", "Cacao", "Banane", "Manioc"]},
-            {"nom": "Maritime", "climat_type": "Côtier", "cultures_phares": ["Maïs", "Maraîchage", "Riz"]}
+            {"nom": "Savanes",   "climat_type": "Sec",      "cultures_phares": ["Maïs", "Sorgho", "Oignon"]},
+            {"nom": "Kara",      "climat_type": "Semi-sec", "cultures_phares": ["Igname", "Maïs", "Coton"]},
+            {"nom": "Centrale",  "climat_type": "Tropical", "cultures_phares": ["Igname", "Manioc", "Soja"]},
+            {"nom": "Plateaux",  "climat_type": "Humide",   "cultures_phares": ["Café", "Cacao", "Banane", "Manioc"]},
+            {"nom": "Maritime",  "climat_type": "Côtier",   "cultures_phares": ["Maïs", "Maraîchage", "Riz"]}
         ]
     }
 
 @app.post("/api/analyse")
 def analyse_parcelle(request: AnalyseRequest):
     """
-    Endpoint principal. Lance le pipeline_gps (Modèle A + Modèle B) 
-    pour générer la recommandation.
+    Endpoint principal — Lance le pipeline_gps (Modèle A + Modèle B).
     """
     if not MODELS_LOADED:
         return {"success": False, "error": "Les modèles IA ne sont pas correctement chargés sur le serveur."}
-    
+
     try:
-        # Appel du pipeline
         top3, zone, clim, sol = recommend_for_gps(
-            lat=request.lat, 
+            lat=request.lat,
             lon=request.lon,
-            token=None,  # Utilisera les identifiants .env ou fallback
+            token=None,
             top_n=3
         )
-        
         return {
             "success": True,
             "zone": zone,
             "climat": {
                 "precip_annuel": clim.get("precip_annuel", 0),
-                "temp_moyenne": clim.get("temp_moyenne", 0),
-                "humidity_rel": clim.get("humidity_rel", 0)
+                "temp_moyenne":  clim.get("temp_moyenne", 0),
+                "humidity_rel":  clim.get("humidity_rel", 0)
             },
             "sol": {
-                "soil_ph": sol.get("soil_ph", 0),
+                "soil_ph":  sol.get("soil_ph", 0),
                 "clay_pct": sol.get("clay_pct", 0),
-                "soc_gkg": sol.get("soc_gkg", 0)
+                "soc_gkg":  sol.get("soc_gkg", 0)
             },
             "recommandations": top3
         }
-
     except Exception as e:
         traceback.print_exc()
         return {"success": False, "error": f"Erreur interne lors de la prédiction: {str(e)}"}
@@ -205,11 +258,8 @@ def analyse_parcelle(request: AnalyseRequest):
 # ============================================================
 # GUIDE DE TEST LOCAL
 # ============================================================
-# POUR TESTER EN LOCAL :
 # 1. Copier .env.example en .env et remplir les credentials
 # 2. pip install -r requirements.txt
 # 3. uvicorn app:app --reload --host 0.0.0.0 --port 8000
-# 4. Ouvrir http://localhost:8000/docs (Swagger auto-généré)
-# 5. Tester POST /api/analyse avec body: {"lat": 7.533, "lon": 1.124}
-# 6. Résultat attendu : igname #1, manioc #2, maïs #3 (zone Plateaux)
-# 7. Tester GET /health → {"status": "ok", "model_loaded": true}
+# 4. http://localhost:8000/docs  (Swagger auto-généré)
+# Sur Railway : ajouter la variable DATABASE_URL (PostgreSQL plugin)
