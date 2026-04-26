@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, EmailStr
 from contextlib import asynccontextmanager
 import os
 import traceback
+import secrets
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from passlib.context import CryptContext
+from jose import jwt, JWTError
 
 # Import du pipeline ML existant
 try:
@@ -13,6 +17,16 @@ except ImportError as e:
     print(f"Erreur import pipeline_gps: {e}")
 
 load_dotenv()
+
+# ── Auth config ──────────────────────────────────────────────
+JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_hex(32))
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_HOURS = 24
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Stockage utilisateurs en mémoire (remplacer par DB en prod)
+_users: dict = {}  # { email: {name, passwordHash} }
 
 # Variables globales d'état
 MODELS_LOADED = False
@@ -59,7 +73,7 @@ app.add_middleware(
 )
 
 # ============================================================
-# SCHÉMAS PYDANTIC (Validation des entrées)
+# SCHÉMAS PYDANTIC
 # ============================================================
 class AnalyseRequest(BaseModel):
     lat: float = Field(..., description="Latitude GPS")
@@ -76,6 +90,52 @@ class AnalyseRequest(BaseModel):
         if not (0.0 <= v <= 1.9):
             raise ValueError("Longitude hors des frontières du Togo (0.0 à 1.9)")
         return v
+
+class RegisterRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=80)
+    email: str = Field(...)
+    password: str = Field(..., min_length=8)
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+# ── Helpers JWT ──
+def create_token(data: dict) -> str:
+    payload = data.copy()
+    payload["exp"] = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+# ============================================================
+# ENDPOINTS AUTH
+# ============================================================
+
+@app.post("/api/auth/register")
+def register(req: RegisterRequest):
+    """Créer un compte utilisateur."""
+    email = req.email.strip().lower()
+    if not "@" in email:
+        raise HTTPException(status_code=400, detail="Email invalide.")
+    if email in _users:
+        raise HTTPException(status_code=409, detail="Un compte avec cet email existe déjà.")
+    _users[email] = {
+        "name": req.name.strip(),
+        "email": email,
+        "passwordHash": pwd_context.hash(req.password)
+    }
+    token = create_token({"sub": email, "name": req.name.strip()})
+    return {"token": token, "user": {"name": req.name.strip(), "email": email}}
+
+@app.post("/api/auth/login")
+def login(req: LoginRequest):
+    """Authentifier un utilisateur et retourner un JWT."""
+    email = req.email.strip().lower()
+    user = _users.get(email)
+    if not user or not pwd_context.verify(req.password, user["passwordHash"]):
+        # Message générique pour ne pas révéler si l'email existe
+        raise HTTPException(status_code=401, detail="Identifiants incorrects.")
+    token = create_token({"sub": email, "name": user["name"]})
+    return {"token": token, "user": {"name": user["name"], "email": email}}
 
 # ============================================================
 # ENDPOINTS
