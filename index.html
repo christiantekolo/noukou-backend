@@ -100,7 +100,15 @@
 <!-- TopAppBar -->
 <nav class="bg-[#012d1d] dark:bg-[#012d1d] fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 h-20">
 <div class="flex items-center gap-3">
-<img src="img/logo.png" alt="NOUKOU Logo" class="h-12 w-auto object-contain" />
+<div class="flex items-center gap-3 group decoration-none">
+  <img src="img/logo.png" alt="NOUKOU Logo" class="h-10 w-auto object-contain hidden" onload="this.classList.remove('hidden'); this.nextElementSibling.classList.add('hidden');" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
+  <div class="flex items-center gap-2">
+    <div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border-2 border-emerald-500 group-hover:scale-105 transition-transform">
+      <span class="font-['Manrope'] font-black text-[#012d1d] text-sm tracking-tighter">NK</span>
+    </div>
+    <span class="font-['Manrope'] font-extrabold tracking-tighter text-white text-2xl group-hover:text-emerald-400 transition-colors">NOUKOU</span>
+  </div>
+</div>
 </div>
 <div class="hidden md:flex gap-8 items-center">
 <a class="text-white font-['Inter'] font-semibold text-sm hover:bg-white/10 transition-colors px-3 py-2 rounded-lg" href="index.html">Accueil</a>
