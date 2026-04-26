@@ -1,0 +1,96 @@
+/* ============================================================
+   NOUKOU — Dashboard & Component Styles (Nouveau Terre Theme)
+   ============================================================ */
+
+.dashboard-header {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 1.5rem; margin-bottom: 3rem; padding-top: 2rem;
+}
+.dashboard-greeting h1 { font-family: var(--font-display); font-size: 2.25rem; font-weight: 800; color: var(--primary); letter-spacing: -0.03em; }
+.dashboard-greeting p { color: var(--on-surface-variant); font-size: 1rem; margin-top: 0.5rem; }
+
+/* ── KPI Cards (Editorial Stacking) ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+.kpi-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl); padding: 2rem;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(25,28,29,0.02);
+}
+.kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(25,28,29,0.06); }
+.kpi-label { font-size: 0.8125rem; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; font-family: var(--font-display); }
+.kpi-value { font-family: var(--font-display); font-size: 2.25rem; font-weight: 800; color: var(--primary); margin-top: 0.75rem; letter-spacing: -0.02em; }
+.kpi-icon { font-size: 1.75rem; margin-bottom: 1rem; }
+
+/* ── Data Table ── */
+.table-wrapper {
+  background: var(--surface-container-lowest); border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 3rem;
+  box-shadow: 0 4px 12px rgba(25,28,29,0.02);
+}
+.table-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--surface-container-low); background: var(--surface-container-lowest); }
+.table-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  padding: 1rem 2rem; text-align: left; font-size: 0.8125rem;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant);
+  font-weight: 600; background: var(--surface-container-low);
+  font-family: var(--font-display); border-bottom: 1px solid var(--surface-container-high);
+}
+.data-table td {
+  padding: 1.25rem 2rem; font-size: 0.9375rem; color: var(--on-surface);
+  border-bottom: 1px solid var(--surface-container-low);
+}
+.data-table tr:hover td { background: var(--surface); }
+.data-table tr:last-child td { border-bottom: none; }
+
+.table-actions { display: flex; gap: 0.75rem; }
+.table-action-btn {
+  padding: 0.5rem 1rem; border-radius: var(--radius-sm);
+  font-size: 0.875rem; font-weight: 600; border: none;
+  background: var(--surface-container-low); color: var(--primary); cursor: pointer;
+  transition: var(--transition);
+}
+.table-action-btn:hover { background: var(--surface-container-high); color: var(--primary-container); }
+.table-action-btn.delete { color: var(--tertiary); background: #ffdad8; }
+.table-action-btn.delete:hover { background: #ffb3b0; }
+
+/* ── Chart ── */
+.chart-wrapper {
+  background: var(--surface-container-lowest); border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl); padding: 2rem; box-shadow: 0 4px 12px rgba(25,28,29,0.02);
+}
+.chart-wrapper h2 { font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem; }
+.chart-container { position: relative; height: 320px; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 5rem 2rem; color: var(--on-surface-variant); }
+.empty-state-icon { font-size: 3.5rem; margin-bottom: 1.5rem; opacity: 0.8; }
+.empty-state h3 { color: var(--primary); font-size: 1.25rem; margin-bottom: 0.75rem; font-family: var(--font-display); font-weight: 700; }
+
+/* ── Rapport ── */
+.rapport-page { max-width: 850px; margin: 0 auto; padding-top: 3rem; }
+.rapport-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 2.5rem; background: var(--surface-container-lowest); border-radius: var(--radius-xl);
+  border: 1px solid var(--outline-variant); margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(25,28,29,0.02);
+}
+.rapport-section { background: var(--surface-container-lowest); border: 1px solid var(--outline-variant); border-radius: var(--radius-xl); padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(25,28,29,0.02); }
+.rapport-section h2 { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--surface-container-low); }
+.rapport-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.rapport-item label { font-size: 0.8125rem; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; font-family: var(--font-display); }
+.rapport-item p { font-size: 1.125rem; color: var(--on-surface); font-weight: 500; margin-top: 0.5rem; }
+.rapport-footer { text-align: center; padding: 2rem; color: var(--on-surface-variant); font-size: 0.875rem; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .data-table th:nth-child(n+4), .data-table td:nth-child(n+4) { display: none; }
+  .rapport-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .dashboard-greeting h1 { font-size: 1.75rem; }
+}
