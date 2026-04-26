@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e1e3e4",
+                        "surface-container-low": "#f3f4f5",
+                        "background": "#f8f9fa",
+                        "on-tertiary-fixed": "#410007",
+                        "inverse-primary": "#a5d0b9",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "inverse-on-surface": "#f0f1f2",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#ffb3b0",
+                        "tertiary-container": "#77131c",
+                        "secondary": "#7d562d",
+                        "primary-container": "#1b4332",
+                        "tertiary": "#55000b",
+                        "outline-variant": "#c1c8c2",
+                        "on-secondary-fixed": "#2c1600",
+                        "on-surface-variant": "#414844",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2e3132",
+                        "on-primary-container": "#86af99",
+                        "surface-container": "#edeeef",
+                        "secondary-fixed": "#ffdcbd",
+                        "on-surface": "#191c1d",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-tertiary-container": "#ff807f",
+                        "on-background": "#191c1d",
+                        "outline": "#717973",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f8f9fa",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#623f18",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffdad8",
+                        "surface": "#f8f9fa",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#f0bd8b",
+                        "on-primary-fixed": "#002114",
+                        "on-tertiary-fixed-variant": "#861f25",
+                        "surface-tint": "#3f6653",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "primary": "#012d1d",
+                        "on-secondary-container": "#7a532a",
+                        "surface-container-high": "#e7e8e9",
+                        "secondary-container": "#ffca98",
+                        "surface-dim": "#d9dadb",
+                        "primary-fixed": "#c1ecd4",
+                        "on-primary-fixed-variant": "#274e3d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; color: #191c1d; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .no-line { border: none !important; }
+        .tonal-shift-bottom { box-shadow: inset 0 -1px 0 0 rgba(0,0,0,0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#012d1d] dark:bg-[#012d1d] flex justify-between items-center w-full px-6 py-4 h-20 fixed top-0 z-50 no-line tonal-shift-bottom">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-white text-2xl" data-icon="eco">eco</span>
+<h1 class="text-2xl font-extrabold tracking-tighter text-white font-['Manrope']">NOUKOU</h1>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-white font-['Inter'] font-semibold uppercase tracking-wider text-[11px] hover:bg-white/10 transition-colors px-3 py-2 rounded-lg" href="index.html" href="index.html">Accueil</a>
+<a class="text-white/70 font-['Inter'] font-semibold uppercase tracking-wider text-[11px] hover:bg-white/10 transition-colors px-3 py-2 rounded-lg" href="index.html" href="analyse.html">Analyser</a>
+<a class="text-white/70 font-['Inter'] font-semibold uppercase tracking-wider text-[11px] hover:bg-white/10 transition-colors px-3 py-2 rounded-lg" href="index.html" href="dashboard.html">Tableau</a>
+<a class="text-white font-['Inter'] font-semibold uppercase tracking-wider text-[11px] flex flex-col items-center justify-center bg-white/10 rounded-xl px-3 py-2" href="index.html" href="rapport.html">Projets</a>
+<a class="text-white/70 font-['Inter'] font-semibold uppercase tracking-wider text-[11px] hover:bg-white/10 transition-colors px-3 py-2 rounded-lg" href="index.html">Profil</a>
+</div>
+<button class="bg-primary-fixed text-on-primary-fixed px-5 py-2.5 rounded-xl font-headline font-bold text-sm scale-95 active:duration-150 active:scale-90 transition-all">
+            Mon Compte
+        </button>
+</header>
+<main class="pt-28 px-4 md:px-8 max-w-7xl mx-auto space-y-12">
+<!-- Hero & Actions -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+<div class="space-y-2">
+<span class="text-secondary font-headline font-bold tracking-widest uppercase text-xs">Rapport Officiel d'Analyse</span>
+<h2 id="report-title" class="text-4xl md:text-6xl font-headline font-extrabold tracking-tight text-primary">Analyse Parcelle</h2>
+<p id="report-zone" class="text-on-surface-variant max-w-xl font-body leading-relaxed">Zone inconnue</p>
+</div>
+<button id="download-pdf-btn" class="flex items-center gap-3 bg-primary text-on-primary px-8 py-4 rounded-xl font-headline font-bold hover:bg-primary-container transition-all shadow-lg">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                Télécharger le rapport (PDF)
+            </button>
+</section>
+<div id="pdf-content-area">
+<!-- Bento Grid: Résumé & Terrain -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Résumé Exécutif -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-xl p-8 space-y-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="article">article</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-primary">Résumé exécutif</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
+<div class="space-y-2">
+<p class="text-xs font-bold text-secondary uppercase tracking-widest">Score de Viabilité</p>
+<p class="text-5xl font-headline font-extrabold text-primary"><span id="report-score">8.4</span><span class="text-xl text-on-primary-container">/10</span></p>
+</div>
+<div class="space-y-2">
+<p class="text-xs font-bold text-secondary uppercase tracking-widest">Culture Prioritaire</p>
+<p id="report-top-crop" class="text-5xl font-headline font-extrabold text-primary">-</p>
+</div>
+</div>
+<p class="text-on-surface-variant font-body leading-relaxed border-l-4 border-primary-fixed-dim pl-6 py-2 italic">
+                    "L'analyse terrain confirme une régularité pluviométrique exceptionnelle et une qualité de sol optimale pour l'arboriculture durable. L'investissement présente un profil de risque modéré avec une forte résilience climatique."
+                </p>
+</div>
+<!-- Analyse du terrain -->
+<div class="md:col-span-4 bg-primary-container rounded-xl overflow-hidden flex flex-col">
+<div class="h-48 relative">
+<img class="w-full h-full object-cover" data-alt="vibrant aerial view of a structured organic farm in Africa with lush green plantations under a clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiw6KnlCSqIR7IEccMv9ekUQsO1JslNJ_k_DOGhGFG7hrKU2IR6A3_SmwVL1pTyKtdCO2b_5tlXYW1TqRYuVoc-x9Da-VmsdykvG7t3lg6TKB_ya_OhhKRXaEq_ugaDXePZ2-4PflG7pqdOuwIAL2X3piwox4kZ8eEO5zDdBv5gu6LUUOdTLL9s7R-Dib1nqPdy94l8tcbF4lw9cDN7sWef2jBgCIm3K0xZPWcroPcmlovheZHzE4DkaibGYFLVDwnfZUTqx9Z5dU_"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container to-transparent"></div>
+</div>
+<div class="p-8 space-y-4">
+<h3 class="text-xl font-headline font-bold text-on-primary">Analyse du terrain</h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-primary-container">Qualité du sol (Azote)</span>
+<span id="report-soil-quality" class="text-primary-fixed font-bold">Excellente</span>
+</div>
+<div class="w-full bg-primary/30 h-1.5 rounded-full overflow-hidden">
+<div id="report-soil-bar" class="bg-primary-fixed h-full w-[92%]"></div>
+</div>
+<div class="flex justify-between items-center text-sm pt-2">
+<span class="text-on-primary-container">Température moyenne</span>
+<span id="report-temp" class="text-primary-fixed font-bold">28°C</span>
+</div>
+<div class="w-full bg-primary/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-fixed h-full w-[78%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Projections Financières -->
+<section class="bg-surface-container-low rounded-xl p-8 space-y-8">
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-6">
+<h3 class="text-2xl font-headline font-bold text-primary">Projection financière</h3>
+<div class="flex gap-4">
+<span class="flex items-center gap-2 text-xs font-bold text-on-surface-variant"><span class="w-3 h-3 rounded-full bg-primary"></span> Réel</span>
+<span class="flex items-center gap-2 text-xs font-bold text-on-surface-variant"><span class="w-3 h-3 rounded-full bg-secondary"></span> Estimé</span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+<!-- Graphique stylisé -->
+<div class="lg:col-span-2 h-80 flex items-end justify-between gap-2 pt-12">
+<div class="flex-1 bg-primary/10 rounded-t-lg h-[40%] group relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-[10px] px-2 py-1 rounded">220k</div>
+</div>
+<div class="flex-1 bg-primary/20 rounded-t-lg h-[55%] group relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-[10px] px-2 py-1 rounded">340k</div>
+</div>
+<div class="flex-1 bg-primary/40 rounded-t-lg h-[65%] group relative"></div>
+<div class="flex-1 bg-primary/60 rounded-t-lg h-[80%] group relative"></div>
+<div class="flex-1 bg-primary rounded-t-lg h-[95%] group relative"></div>
+<div class="flex-1 bg-secondary/60 rounded-t-lg h-[100%] border-t-2 border-dashed border-secondary group relative"></div>
+<div class="flex-1 bg-secondary/40 rounded-t-lg h-[90%] border-t-2 border-dashed border-secondary group relative"></div>
+</div>
+<!-- Tableau de données -->
+<div class="space-y-6">
+<div class="p-4 bg-surface-container-lowest rounded-xl">
+<p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">CAPEX Total</p>
+<p class="text-2xl font-headline font-bold text-primary">€1,420,000</p>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl">
+<p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">ROI Cible (Projection)</p>
+<p id="report-roi" class="text-2xl font-headline font-bold text-secondary">24.8%</p>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl">
+<p class="text-xs font-bold text-outline uppercase tracking-wider mb-1">Break-even Point</p>
+<p class="text-2xl font-headline font-bold text-primary">Mois 32</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommandations & Risques -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Recommandations -->
+<section class="space-y-6">
+<h3 class="text-2xl font-headline font-bold text-primary">Recommandations</h3>
+<div class="space-y-4">
+<div class="flex gap-4 p-4 hover:bg-surface-container-high transition-colors rounded-xl">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+<div>
+<p class="font-bold text-on-surface">Diversification Variétale</p>
+<p class="text-sm text-on-surface-variant">Prioriser l'introduction de plants certifiés à haut rendement.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 hover:bg-surface-container-high transition-colors rounded-xl">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+<div>
+<p class="font-bold text-on-surface">Digitalisation Suivi</p>
+<p class="text-sm text-on-surface-variant">Déployer des sondes d'humidité connectées pour optimiser l'irrigation.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Analyse des risques -->
+<section class="bg-tertiary-fixed rounded-xl p-8 space-y-6">
+<div class="flex items-center gap-3 text-on-tertiary-fixed">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<h3 class="text-xl font-headline font-bold">Analyse des risques</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center text-sm text-on-tertiary-fixed border-b border-on-tertiary-fixed/10 pb-2">
+<span>Fluctuation des prix mondiaux</span>
+<span class="px-2 py-1 bg-tertiary/20 rounded font-bold">Élevé</span>
+</div>
+<div class="flex justify-between items-center text-sm text-on-tertiary-fixed border-b border-on-tertiary-fixed/10 pb-2">
+<span>Aléas climatiques locaux</span>
+<span class="px-2 py-1 bg-tertiary/10 rounded font-bold">Faible</span>
+</div>
+<div class="flex justify-between items-center text-sm text-on-tertiary-fixed">
+<span>Instabilité de la chaîne logistique</span>
+<span class="px-2 py-1 bg-tertiary/10 rounded font-bold">Modéré</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] border-t border-zinc-200/50">
+<button class="flex flex-col items-center justify-center text-zinc-400 hover:text-[#012d1d] tap-highlight-none active:scale-90 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Accueil</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-400 hover:text-[#012d1d] active:scale-90">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Analyser</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#012d1d] bg-[#f3f4f5] rounded-xl px-3 py-2">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Projets</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-400 hover:text-[#012d1d] active:scale-90">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Profil</span>
+</button>
+</nav>
+<script src="js/mock-data.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const portfolio = getPortfolio();
+    if (portfolio.length > 0) {
+        const latest = portfolio[0];
+        
+        // Dynamize fields
+        document.getElementById('report-title').textContent = "Analyse IA : " + latest.zone;
+        document.getElementById('report-zone').textContent = `Date : ${new Date(latest.date).toLocaleDateString('fr-FR')} | Coordonnées : ${latest.coordonnees.lat}, ${latest.coordonnees.lon}`;
+        
+        const recs = latest.recommandations || [];
+        const avgScore = recs.length ? Math.round(recs.reduce((s,r) => s + r.score_final, 0) / recs.length) : 0;
+        document.getElementById('report-score').textContent = (avgScore / 10).toFixed(1);
+        
+        if (recs.length > 0) {
+            document.getElementById('report-top-crop').textContent = recs[0].culture_fr;
+            const roi = Math.round((recs[0].rendement_relatif - 0.3) * 200);
+            document.getElementById('report-roi').textContent = '+' + roi + '%';
+        }
+
+        const soc = latest.sol.soc_gkg;
+        const nLevel = soc >= 0.6 ? 'Élevé' : soc >= 0.4 ? 'Moyen' : 'Faible';
+        const nPct = Math.min(100, Math.round(soc / 0.8 * 100));
+        document.getElementById('report-soil-quality').textContent = nLevel;
+        document.getElementById('report-soil-bar').style.width = nPct + '%';
+        
+        document.getElementById('report-temp').textContent = latest.climat.temp_moyenne.toFixed(1) + '°C';
+    }
+
+    // PDF Download
+    document.getElementById('download-pdf-btn').addEventListener('click', function() {
+        // Change button state
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Génération...';
+        this.disabled = true;
+
+        const element = document.getElementById('pdf-content-area');
+        const opt = {
+            margin:       [10, 10, 10, 10],
+            filename:     'NOUKOU_Rapport_Analyse.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Delay to allow DOM update for button text
+        setTimeout(() => {
+            html2pdf().set(opt).from(element).save().then(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            });
+        }, 100);
+    });
+});
+</script>
+</body></html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tableau de Bord NOUKOU</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e1e3e4",
+                    "surface-container-low": "#f3f4f5",
+                    "background": "#f8f9fa",
+                    "on-tertiary-fixed": "#410007",
+                    "inverse-primary": "#a5d0b9",
+                    "primary-fixed-dim": "#a5d0b9",
+                    "inverse-on-surface": "#f0f1f2",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#ffb3b0",
+                    "tertiary-container": "#77131c",
+                    "secondary": "#7d562d",
+                    "primary-container": "#1b4332",
+                    "tertiary": "#55000b",
+                    "outline-variant": "#c1c8c2",
+                    "on-secondary-fixed": "#2c1600",
+                    "on-surface-variant": "#414844",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#2e3132",
+                    "on-primary-container": "#86af99",
+                    "surface-container": "#edeeef",
+                    "secondary-fixed": "#ffdcbd",
+                    "on-surface": "#191c1d",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-tertiary-container": "#ff807f",
+                    "on-background": "#191c1d",
+                    "outline": "#717973",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#f8f9fa",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#623f18",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdad8",
+                    "surface": "#f8f9fa",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#f0bd8b",
+                    "on-primary-fixed": "#002114",
+                    "on-tertiary-fixed-variant": "#861f25",
+                    "surface-tint": "#3f6653",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "primary": "#012d1d",
+                    "on-secondary-container": "#7a532a",
+                    "surface-container-high": "#e7e8e9",
+                    "secondary-container": "#ffca98",
+                    "surface-dim": "#d9dadb",
+                    "primary-fixed": "#c1ecd4",
+                    "on-primary-fixed-variant": "#274e3d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#012d1d] dark:bg-[#012d1d] flex justify-between items-center w-full px-6 py-4 h-20 fixed top-0 z-50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-white text-2xl" data-icon="eco">eco</span>
+<h1 class="text-2xl font-extrabold tracking-tighter text-white font-headline">NOUKOU</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8">
+<a class="text-white font-medium hover:bg-white/10 px-3 py-2 rounded-lg transition-colors" href="index.html" href="index.html">Accueil</a>
+<a class="text-white/70 font-medium hover:bg-white/10 px-3 py-2 rounded-lg transition-colors" href="index.html">Explorer</a>
+<a class="text-white/70 font-medium hover:bg-white/10 px-3 py-2 rounded-lg transition-colors" href="index.html">Investir</a>
+</div>
+<button class="text-white hover:bg-white/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-28 px-4 md:px-8 max-w-7xl mx-auto space-y-8">
+<!-- Hero Section / KPIs Bento Grid -->
+<section>
+<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+<div>
+<h2 class="text-4xl font-extrabold font-headline tracking-tight text-primary">Vue d'ensemble</h2>
+<p class="text-outline font-body mt-1">Analyse de performance et opportunités de croissance.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-high text-on-surface px-4 py-2 rounded-xl font-semibold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="calendar_today">calendar_today</span>
+                        Derniers 30 jours
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- KPI: ROI estimé -->
+<div class="bg-primary-container p-6 rounded-[16px] text-white flex flex-col justify-between min-h-[180px] shadow-sm overflow-hidden relative">
+<div class="relative z-10">
+<div class="flex justify-between items-start">
+<span class="text-on-primary-container font-semibold tracking-wide uppercase text-xs">ROI estimé</span>
+<span class="material-symbols-outlined text-on-primary-container" data-icon="trending_up">trending_up</span>
+</div>
+<div class="mt-4">
+<div id="kpi-roi" class="text-5xl font-extrabold font-headline">+24.8%</div>
+<p class="text-on-primary-container text-sm mt-2 font-medium">Projection annuelle basée sur l'IA</p>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-20">
+<span class="material-symbols-outlined text-9xl" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+</div>
+<!-- KPI: Niveau de risque -->
+<div class="bg-surface-container-lowest p-6 rounded-[16px] border border-outline-variant/15 flex flex-col justify-between min-h-[180px]">
+<div>
+<div class="flex justify-between items-start">
+<span class="text-outline font-semibold tracking-wide uppercase text-xs">Niveau de risque</span>
+<span class="material-symbols-outlined text-secondary" data-icon="security">security</span>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<div id="kpi-risk" class="text-4xl font-extrabold font-headline text-primary">Modéré</div>
+<span class="text-secondary font-bold text-lg">B+</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full mt-4 overflow-hidden">
+<div id="kpi-risk-bar" class="bg-secondary h-full w-[45%]"></div>
+</div>
+<p class="text-on-surface-variant text-xs mt-2">Facteurs climatiques stables cette saison</p>
+</div>
+<!-- KPI: Cultures recommandées -->
+<div class="bg-surface-container-lowest p-6 rounded-[16px] border border-outline-variant/15 flex flex-col justify-between min-h-[180px]">
+<div>
+<div class="flex justify-between items-start">
+<span class="text-outline font-semibold tracking-wide uppercase text-xs">Cultures recommandées</span>
+<span class="material-symbols-outlined text-primary" data-icon="potted_plant">potted_plant</span>
+</div>
+<div id="kpi-crops" class="mt-4 flex flex-wrap gap-2">
+<span class="bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Cacao</span>
+<span class="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Anacarde</span>
+<span class="bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">+2 autres</span>
+</div>
+</div>
+<button class="text-primary font-bold text-sm flex items-center gap-1 hover:underline mt-4">
+                        Voir l'analyse complète
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Main Content Section: Map & Recent Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Map Section -->
+<div class="lg:col-span-8 space-y-6">
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden shadow-sm border border-outline-variant/10">
+<div class="p-6 flex justify-between items-center border-b border-surface-container-low">
+<h3 class="font-headline font-bold text-xl text-primary">Zones Agricoles Actives</h3>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined" data-icon="layers">layers</span></button>
+<button class="p-2 hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined" data-icon="my_location">my_location</span></button>
+</div>
+</div>
+<div id="dashboard-map" class="h-[450px] w-full" style="z-index: 1;"></div>
+</div>
+<!-- Recent Analyses -->
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-xl text-primary">Analyses récentes</h3>
+<a class="text-secondary font-bold text-sm" href="index.html">Tout voir</a>
+</div>
+<div id="analyses-list" class="space-y-4">
+<div class="p-8 text-center text-outline">Aucune analyse enregistrée. <a href="analyse.html" class="text-primary font-bold hover:underline">Lancer une analyse</a></div>
+</div>
+</div>
+</div>
+<!-- Side Section: Quick Actions -->
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-high/40 rounded-[24px] p-6 border border-outline-variant/15">
+<h3 class="font-headline font-bold text-xl text-primary mb-6">Actions rapides</h3>
+<div class="grid grid-cols-1 gap-4">
+<button class="bg-primary text-white p-4 rounded-2xl flex items-center gap-4 hover:bg-primary-container transition-all active:scale-95 group">
+<div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+</div>
+<span class="font-bold">Importer une image</span>
+</button>
+<button class="bg-surface-container-lowest text-primary p-4 rounded-2xl flex items-center gap-4 border border-outline-variant/15 hover:border-primary transition-all active:scale-95">
+<div class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="radar">radar</span>
+</div>
+<a href="analyse.html" class="font-bold">Analyser une zone</a>
+</button>
+<button class="bg-surface-container-lowest text-primary p-4 rounded-2xl flex items-center gap-4 border border-outline-variant/15 hover:border-primary transition-all active:scale-95">
+<div class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="settings_voice">settings_voice</span>
+</div>
+<span class="font-bold">Entrée vocale</span>
+</button>
+</div>
+</div>
+<!-- Community / Advisory Card -->
+<div class="bg-secondary-container p-6 rounded-[24px] relative overflow-hidden group">
+<div class="relative z-10">
+<h4 class="text-on-secondary-container font-headline font-extrabold text-xl leading-tight">Besoin d'un conseil d'expert ?</h4>
+<p class="text-on-secondary-fixed-variant text-sm mt-2 mb-6">Nos ingénieurs agronomes vous répondent en moins de 24h.</p>
+<button class="bg-on-secondary-container text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg group-hover:scale-105 transition-transform">
+                            Contacter un expert
+                        </button>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[160px]" data-icon="support_agent">support_agent</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] border-t border-zinc-200/50">
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:scale-105 transition-transform duration-300" href="index.html">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Accueil</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:scale-105 transition-transform duration-300" href="index.html">
+<span class="material-symbols-outlined mb-1" data-icon="query_stats">query_stats</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Analyser</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#012d1d] bg-[#f3f4f5] rounded-xl px-4 py-2 hover:scale-105 transition-transform duration-300" href="index.html">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Tableau</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:scale-105 transition-transform duration-300" href="index.html">
+<span class="material-symbols-outlined mb-1" data-icon="layers">layers</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Projets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:scale-105 transition-transform duration-300" href="index.html">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Profil</span>
+</a>
+</nav>
+<!-- FAB (Suppressed based on logic but keeping placeholder for structure) -->
+<script src="js/mock-data.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const portfolio = getPortfolio();
+
+    // ── KPIs ──
+    if (portfolio.length > 0) {
+        const latest = portfolio[0];
+        const recs = latest.recommandations || [];
+        const avgScore = recs.length ? Math.round(recs.reduce((s,r) => s + r.score_final, 0) / recs.length) : 0;
+        const bestRatio = recs[0]?.rendement_relatif || 1;
+        const roi = Math.round((bestRatio - 0.3) * 200);
+
+        document.getElementById('kpi-roi').textContent = '+' + roi + '%';
+
+        const riskLabel = avgScore >= 80 ? 'Bas' : avgScore >= 60 ? 'Modéré' : 'Élevé';
+        const riskGrade = avgScore >= 80 ? 'A' : avgScore >= 60 ? 'B+' : 'C';
+        const riskPct = Math.min(100, Math.round((100 - avgScore) * 1.2));
+        document.getElementById('kpi-risk').textContent = riskLabel;
+        document.getElementById('kpi-risk-bar').style.width = riskPct + '%';
+
+        // Crops chips
+        const cropsDiv = document.getElementById('kpi-crops');
+        const chipColors = [
+            'bg-primary-fixed text-on-primary-fixed',
+            'bg-secondary-fixed text-on-secondary-fixed',
+            'bg-surface-container text-on-surface-variant'
+        ];
+        cropsDiv.innerHTML = recs.map((r, i) =>
+            `<span class="${chipColors[Math.min(i, 2)]} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">${r.culture_fr}</span>`
+        ).join('');
+    }
+
+    // ── Leaflet Map with markers ──
+    const map = L.map('dashboard-map').setView([8.6195, 0.8248], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    setTimeout(() => map.invalidateSize(), 200);
+
+    portfolio.forEach(entry => {
+        if (entry.coordonnees) {
+            const lat = parseFloat(entry.coordonnees.lat);
+            const lng = parseFloat(entry.coordonnees.lon);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const topCrop = entry.recommandations?.[0]?.culture_fr || 'Analyse';
+                L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(`<b>${entry.zone}</b><br>${topCrop} — Score: ${entry.recommandations?.[0]?.score_final || '?'}%`);
+            }
+        }
+    });
+
+    // ── Recent Analyses list ──
+    const listDiv = document.getElementById('analyses-list');
+    if (portfolio.length > 0) {
+        listDiv.innerHTML = portfolio.slice(0, 5).map(entry => {
+            const topCrop = entry.recommandations?.[0]?.culture_fr || 'Analyse';
+            const score = entry.recommandations?.[0]?.score_final || '?';
+            const date = new Date(entry.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short', year:'numeric'});
+            const niveau = entry.recommandations?.[0]?.niveau || 'Optimal';
+            const badgeClass = niveau === 'Optimal' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-outline';
+            return `
+            <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors cursor-pointer group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+                        <span class="material-symbols-outlined text-primary">eco</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-primary">${entry.zone} — ${topCrop}</h4>
+                        <p class="text-xs text-outline">Score ${score}% · ${date}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="${badgeClass} px-3 py-1 rounded-full text-[10px] font-extrabold uppercase">${niveau}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+});
+</script>
+</body></html>
