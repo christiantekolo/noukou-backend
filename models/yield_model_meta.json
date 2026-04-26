@@ -1,0 +1,92 @@
+{
+  "architecture": "Hybride — RF (Plateaux/Maritime/Kara/Centrale) + Ridge (Savanes)",
+  "date_trained": "2026-04-13",
+  "n_samples": 2230,
+  "cultures": [
+    "Beans (mixed)",
+    "Cassava",
+    "Groundnuts (In Shell)",
+    "Maize",
+    "Millet",
+    "Sorghum",
+    "Yams",
+    "Cowpea",
+    "Rice",
+    "Soybean",
+    "Cotton"
+  ],
+  "regions": [
+    "Centrale",
+    "Kara",
+    "Maritime",
+    "Plateaux",
+    "Savanes"
+  ],
+  "routing": {
+    "Savanes": "yield_ridge_savanes_togo.pkl",
+    "default": "yield_rf_model_togo.pkl"
+  },
+  "features_num": [
+    "lat",
+    "lon",
+    "precip_annuel",
+    "temp_moyenne",
+    "soil_ph",
+    "clay_pct",
+    "soc_gkg",
+    "cec_cmol_kg",
+    "solar_rad",
+    "humidity_rel",
+    "cycle_duration",
+    "planting_month_sin",
+    "planting_month_cos",
+    "harvest_month_sin",
+    "harvest_month_cos",
+    "rain_per_cycle",
+    "temp_x_precip",
+    "humidity_x_temp",
+    "soil_index",
+    "year_trend",
+    "aridity_index",
+    "log_precip",
+    "precip_deficit",
+    "heat_stress",
+    "water_heat_efficiency",
+    "rain_intensity",
+    "humidity_deficit",
+    "evapo_proxy",
+    "arid_stress",
+    "humidity_precip_ratio"
+  ],
+  "features_cat": [
+    "culture",
+    "admin_1"
+  ],
+  "validation_method": "Leave-One-Region-Out (GroupKFold, 5 régions)",
+  "metrics_cv": {
+    "r2": 0.845,
+    "rmse": 0.863,
+    "mae": 0.504,
+    "wmape_%": 30.5
+  },
+  "r2_by_region_cv": {
+    "Plateaux": 0.85,
+    "Maritime": 0.758,
+    "Kara": 0.886,
+    "Centrale": 0.918,
+    "Savanes": 0.253
+  },
+  "mae_by_region_cv": {
+    "Plateaux": 0.587,
+    "Maritime": 0.751,
+    "Kara": 0.307,
+    "Centrale": 0.404,
+    "Savanes": 0.233
+  },
+  "cultures_wmape_ok": "1/11 cultures WMAPE < 25%",
+  "target_transform": "log1p / expm1",
+  "savanes_note": "Ridge utilisé pour Savanes (humidité très basse : 61% vs 76%). MAE Savanes = 0.233 T/ha < cible 0.248. V2 : collecter données terrain Savanes pour améliorer R².",
+  "maritime_note": "Maritime MAE élevé (0.751) dû aux cultures à haut rendement (Cassava, Yams). WMAPE par culture corrige cette distorsion.",
+  "usage": "Appeler predict_hybrid(X_new, regions_new). X_new doit contenir les colonnes de feature_columns_togo.pkl.",
+  "next_step": "Étape 6 Guide — Pipeline GPS → get_features_from_gps()"
+}
