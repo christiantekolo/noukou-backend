@@ -1,137 +1,402 @@
 <!DOCTYPE html>
-<html class="light" lang="fr">
+<html lang="fr">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Espace Utilisateur - NOUKOU</title>
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#012d1d",
-                        "primary-fixed": "#c1ecd4",
-                        "on-primary-fixed": "#002114",
-                        "secondary": "#7d562d",
-                        "surface": "#f8f9fa",
-                        "on-surface": "#191c1d",
-                        "on-surface-variant": "#414844",
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 25px 50px -12px rgba(1, 45, 29, 0.15);
-        }
-        .input-animated:focus ~ .label-animated,
-        .input-animated:not(:placeholder-shown) ~ .label-animated {
-            transform: translateY(-1.5rem) scale(0.85);
-            color: #012d1d;
-            font-weight: 600;
-        }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion - NOUKOU</title>
+  <meta name="description" content="Connectez-vous à votre espace NOUKOU pour accéder à vos analyses agricoles intelligentes."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #012d1d;
+      --primary-light: #1b4332;
+      --primary-fixed: #c1ecd4;
+      --secondary: #7d562d;
+      --surface: #f8f9fa;
+      --on-surface: #191c1d;
+      --on-surface-variant: #414844;
+      --error: #ba1a1a;
+      --success: #2d6a4f;
+      --outline: #c1c8c2;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      background: var(--surface);
+      color: var(--on-surface);
+    }
+
+    /* ── PANNEAU GAUCHE ── */
+    .left-panel {
+      display: none;
+      width: 50%;
+      background: var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) { .left-panel { display: flex; flex-direction: column; justify-content: flex-end; padding: 3rem; } }
+
+    .left-panel img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+      mix-blend-mode: luminosity;
+    }
+    .left-panel-content { position: relative; z-index: 1; color: #fff; }
+    .brand { display: flex; align-items: center; gap: 0.75rem; position: absolute; top: 2.5rem; left: 3rem; z-index: 2; text-decoration: none; }
+    .brand-icon { font-size: 2rem; color: #fff; font-family: 'Material Symbols Outlined'; }
+    .brand-name { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.5rem; color: #fff; letter-spacing: -0.03em; }
+    .left-panel h1 { font-family: 'Manrope', sans-serif; font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 900; line-height: 1.15; margin-bottom: 1rem; }
+    .left-panel p { color: rgba(255,255,255,0.75); font-size: 1rem; line-height: 1.6; max-width: 380px; }
+    .stat-bar { display: flex; gap: 2rem; margin-top: 2.5rem; }
+    .stat { border-left: 3px solid var(--primary-fixed); padding-left: 1rem; }
+    .stat-value { font-family: 'Manrope', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary-fixed); }
+    .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+
+    /* ── PANNEAU DROIT ── */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.5rem;
+    }
+    .mobile-brand { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2.5rem; text-decoration: none; }
+    @media (min-width: 768px) { .mobile-brand { display: none; } }
+    .mobile-brand .brand-icon { color: var(--primary); }
+    .mobile-brand .brand-name { color: var(--primary); }
+
+    .form-box {
+      width: 100%; max-width: 420px;
+      background: #fff;
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(1,45,29,0.10), 0 1.5px 4px rgba(1,45,29,0.06);
+    }
+
+    .form-header { margin-bottom: 2rem; }
+    .form-header h2 { font-family: 'Manrope', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--primary); }
+    .form-header p { color: var(--on-surface-variant); margin-top: 0.35rem; font-size: 0.9rem; }
+
+    /* ── CHAMPS ── */
+    .field { margin-bottom: 1.25rem; }
+    .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--on-surface-variant); margin-bottom: 0.4rem; letter-spacing: 0.02em; }
+
+    .input-wrap { position: relative; }
+    .input-wrap .material-symbols-outlined.prefix {
+      position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%);
+      font-size: 1.1rem; color: #9ca3af; pointer-events: none;
+    }
+    .input-wrap input {
+      width: 100%;
+      padding: 0.85rem 2.75rem 0.85rem 2.5rem;
+      border: 1.5px solid var(--outline);
+      border-radius: 0.75rem;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--on-surface);
+      background: var(--surface);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,45,29,0.1); }
+    .input-wrap input.error { border-color: var(--error); }
+    .input-wrap .toggle-pw {
+      position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%);
+      font-size: 1.1rem; color: #9ca3af; cursor: pointer; background: none; border: none;
+      font-family: 'Material Symbols Outlined'; transition: color 0.2s;
+    }
+    .input-wrap .toggle-pw:hover { color: var(--primary); }
+
+    .field-error { font-size: 0.78rem; color: var(--error); margin-top: 0.3rem; display: none; }
+    .field-error.visible { display: block; }
+
+    /* ── OPTIONS ── */
+    .row-opts { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--on-surface-variant); cursor: pointer; }
+    .checkbox-label input[type=checkbox] { accent-color: var(--primary); width: 1rem; height: 1rem; }
+    .forgot-link { font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* ── BOUTON SUBMIT ── */
+    .btn-submit {
+      width: 100%; padding: 0.95rem;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 0.85rem;
+      font-size: 1rem; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(1,45,29,0.25);
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(1,45,29,0.3); }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn-submit .spinner {
+      width: 1rem; height: 1rem; border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--error); color: #fff;
+      padding: 0.85rem 1.5rem; border-radius: 0.75rem;
+      font-size: 0.9rem; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 100; white-space: nowrap; max-width: 90vw;
+    }
+    #toast.success { background: var(--success); }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── PIED ── */
+    .form-footer { text-align: center; margin-top: 1.75rem; font-size: 0.875rem; color: var(--on-surface-variant); }
+    .form-footer a { color: var(--primary); font-weight: 700; text-decoration: none; }
+    .form-footer a:hover { text-decoration: underline; }
+
+    /* ── TENTATIVES ── */
+    #attempts-warning { display:none; font-size:0.8rem; color: var(--error); text-align:center; margin-bottom:0.75rem; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row overflow-hidden bg-surface">
+<body>
 
-    <!-- Section Gauche : Image et Branding -->
-    <div class="hidden md:flex md:w-1/2 relative bg-primary items-center justify-center p-12 overflow-hidden">
-        <div class="absolute inset-0 opacity-40">
-            <img class="w-full h-full object-cover mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFIgOMSASN6iW_Hobrweg2JMVrOGCT_0bNvU5eFRL5-flNj0pSxqd6AlO-0yiTY-2s3SvoJcrkPq-Rl6MVwgm1Vx7I4v9IpG6OIvQw8ivcqJPjDo07jWPEPyHnhpFUHSCVpkrX-IC8jjZwyoWjPvlLknfClZpZ9bULySF4bDlgkFr4GC1xCfaItAa9CAJAGgBOIh-w6NVL-ITpNhG2wbSI5c_iIBCa_MtOCbuPAXEKdvOD14LRF43vios1raPho1ImVFohy7zC8PXf" alt="Agriculture field"/>
+  <!-- PANNEAU GAUCHE -->
+  <div class="left-panel">
+    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFIgOMSASN6iW_Hobrweg2JMVrOGCT_0bNvU5eFRL5-flNj0pSxqd6AlO-0yiTY-2s3SvoJcrkPq-Rl6MVwgm1Vx7I4v9IpG6OIvQw8ivcqJPjDo07jWPEPyHnhpFUHSCVpkrX-IC8jjZwyoWjPvlLknfClZpZ9bULySF4bDlgkFr4GC1xCfaItAa9CAJAGgBOIh-w6NVL-ITpNhG2wbSI5c_iIBCa_MtOCbuPAXEKdvOD14LRF43vios1raPho1ImVFohy7zC8PXf" alt="Champ agricole"/>
+    <a href="index.html" class="brand">
+      <span class="brand-icon material-symbols-outlined">eco</span>
+      <span class="brand-name">NOUKOU</span>
+    </a>
+    <div class="left-panel-content">
+      <h1>L'intelligence au service de vos terres.</h1>
+      <p>Connectez-vous pour accéder à vos analyses prédictives et gérer votre portefeuille agricole.</p>
+      <div class="stat-bar">
+        <div class="stat">
+          <div class="stat-value">92%</div>
+          <div class="stat-label">Précision IA</div>
         </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-[#012d1d] via-[#012d1d]/80 to-transparent"></div>
-        
-        <div class="relative z-10 text-white max-w-lg">
-            <a href="index.html" class="flex items-center gap-3 mb-16 inline-flex hover:scale-105 transition-transform">
-                <span class="material-symbols-outlined text-4xl">eco</span>
-                <span class="font-headline font-extrabold text-3xl tracking-tighter">NOUKOU</span>
-            </a>
-            
-            <h1 class="text-4xl lg:text-5xl font-black mb-6 leading-tight">L'intelligence au service de vos terres.</h1>
-            <p class="text-lg text-white/80 font-medium mb-12">Connectez-vous pour accéder à vos analyses prédictives, suivre l'évolution de vos parcelles et gérer votre portefeuille agricole.</p>
-            
-            <div class="flex gap-4 items-center">
-                <div class="flex -space-x-4">
-                    <img class="w-12 h-12 rounded-full border-2 border-[#012d1d] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu_ke29ZdWxRNt-a4VRP2oWfkxP_rQJnuwJGWe0n6wIV3dgERjbw056ONWZdZYPTym3BXV9zdfVi1ZAvT-1rl6aG1l3sxdnhCNI_-mAHu3RtjpCIphK-Tot3d6clwIyh_Qjg8d5p0J3-C2ofrgpa_0pysEGsKiHvo2iIIwJ8djJpU5fE7XvBR62l4q9rLBg1rfE5i8mL5tgRdTWc408YsM88jUQfegvx9Q9KCYYuyWu-t5NPewsm0S3YBmemhC0cERsXKWyNstQTuv" alt="User"/>
-                    <img class="w-12 h-12 rounded-full border-2 border-[#012d1d] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGWhd6Sc_5mSahasxmCximqCC9ti4gv_BRQs7a5PxsGtpTJ8Pz0vgYYnxDqDFXBP9C2jChy4_f7VGNwTZMaEKJYJTA4mjus5HF6EYcT75AH_IK-FECViOkBnTdhWjElfsODp76FsEPqJXMxoxD8DJMimltmZ22gWx3-d7frWgcbXtBMUpw3nnZ6fEMiCT5CrI5mXMR2zx76wWNTQVctF9_V2Gjb_vY42UYK6kW0IJVPO3TDeVg9JgGeeU3apWFtH4HRhMw_zyYUfDN" alt="User"/>
-                    <div class="w-12 h-12 rounded-full border-2 border-[#012d1d] bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-sm">
-                        +1.2k
-                    </div>
-                </div>
-                <p class="text-sm font-medium text-white/90">Rejoignez notre réseau d'experts</p>
-            </div>
+        <div class="stat">
+          <div class="stat-value">1200+</div>
+          <div class="stat-label">Investisseurs</div>
         </div>
+        <div class="stat">
+          <div class="stat-value">+24%</div>
+          <div class="stat-label">ROI moyen</div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Section Droite : Formulaire -->
-    <div class="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-20 relative">
-        <a href="index.html" class="md:hidden absolute top-6 left-6 flex items-center gap-2 text-primary font-bold">
-            <span class="material-symbols-outlined">eco</span> NOUKOU
-        </a>
+  <!-- PANNEAU DROIT -->
+  <div class="right-panel">
+    <a href="index.html" class="mobile-brand">
+      <span class="brand-icon material-symbols-outlined">eco</span>
+      <span class="brand-name">NOUKOU</span>
+    </a>
 
-        <div class="w-full max-w-md glass-panel p-8 sm:p-12 rounded-[2rem]">
-            <div class="mb-10 text-center">
-                <h2 class="text-3xl font-extrabold text-primary mb-2">Bienvenue</h2>
-                <p class="text-on-surface-variant font-medium">Entrez vos identifiants pour continuer</p>
-            </div>
+    <div class="form-box">
+      <div class="form-header">
+        <h2>Bienvenue 👋</h2>
+        <p>Entrez vos identifiants pour continuer</p>
+      </div>
 
-            <form action="dashboard.html" method="GET" class="space-y-6">
-                <!-- Champ Email -->
-                <div class="relative">
-                    <input type="email" id="email" class="input-animated block w-full px-4 py-4 text-on-surface bg-transparent border-2 border-zinc-200 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary transition-colors peer" placeholder=" " required />
-                    <label for="email" class="label-animated absolute text-on-surface-variant duration-300 transform -translate-y-1/2 top-1/2 left-4 z-10 origin-[0] cursor-text">Adresse Email</label>
-                    <span class="material-symbols-outlined absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400">mail</span>
-                </div>
-
-                <!-- Champ Mot de passe -->
-                <div class="relative">
-                    <input type="password" id="password" class="input-animated block w-full px-4 py-4 text-on-surface bg-transparent border-2 border-zinc-200 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary transition-colors peer" placeholder=" " required />
-                    <label for="password" class="label-animated absolute text-on-surface-variant duration-300 transform -translate-y-1/2 top-1/2 left-4 z-10 origin-[0] cursor-text">Mot de passe</label>
-                    <span class="material-symbols-outlined absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 cursor-pointer hover:text-primary transition-colors" onclick="const p=document.getElementById('password'); p.type=p.type==='password'?'text':'password'; this.textContent=p.type==='password'?'visibility_off':'visibility';">visibility_off</span>
-                </div>
-
-                <!-- Options -->
-                <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="rounded border-zinc-300 text-primary focus:ring-primary w-4 h-4 transition-colors" />
-                        <span class="font-medium text-on-surface-variant">Se souvenir de moi</span>
-                    </label>
-                    <a href="#" class="font-bold text-primary hover:text-secondary transition-colors">Mot de passe oublié ?</a>
-                </div>
-
-                <!-- Bouton -->
-                <button type="submit" class="w-full bg-primary text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-[#02402a] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2">
-                    Connexion <span class="material-symbols-outlined">arrow_forward</span>
-                </button>
-            </form>
-
-            <div class="mt-10 text-center">
-                <p class="text-on-surface-variant font-medium">
-                    Nouveau sur Noukou ? 
-                    <a href="#" class="font-bold text-primary hover:text-secondary transition-colors ml-1">Créer un compte</a>
-                </p>
-            </div>
+      <form id="login-form" novalidate>
+        <!-- Email -->
+        <div class="field">
+          <label for="email">Adresse email</label>
+          <div class="input-wrap">
+            <span class="material-symbols-outlined prefix">mail</span>
+            <input type="email" id="email" name="email" placeholder="vous@exemple.com" autocomplete="email" required/>
+          </div>
+          <div class="field-error" id="email-error">Veuillez entrer un email valide.</div>
         </div>
-    </div>
 
+        <!-- Mot de passe -->
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <div class="input-wrap">
+            <span class="material-symbols-outlined prefix">lock</span>
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required/>
+            <button type="button" class="toggle-pw material-symbols-outlined" id="toggle-pw" aria-label="Afficher/masquer le mot de passe">visibility_off</button>
+          </div>
+          <div class="field-error" id="pw-error">Le mot de passe ne peut pas être vide.</div>
+        </div>
+
+        <!-- Options -->
+        <div class="row-opts">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember-me"/> Se souvenir de moi
+          </label>
+          <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+        </div>
+
+        <!-- Avertissement tentatives -->
+        <p id="attempts-warning"></p>
+
+        <!-- Bouton -->
+        <button type="submit" class="btn-submit" id="submit-btn">
+          <div class="spinner"></div>
+          <span class="btn-text">Se connecter <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;">arrow_forward</span></span>
+        </button>
+      </form>
+
+      <div class="form-footer">
+        Nouveau sur NOUKOU ? <a href="#">Créer un compte</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast"></div>
+
+  <script>
+    const API_URL = 'https://web-production-11c8c.up.railway.app';
+    const MAX_ATTEMPTS = 5;
+    const LOCKOUT_MS = 15 * 60 * 1000; // 15 min
+
+    // ── Utilitaires ──
+    function showToast(msg, type = 'error') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = type === 'success' ? 'success show' : 'show';
+      setTimeout(() => t.className = t.className.replace(' show',''), 4000);
+    }
+
+    function setLoading(on) {
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = on;
+      btn.classList.toggle('loading', on);
+    }
+
+    function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+    // ── Protection brute-force (côté client) ──
+    function getAttempts() {
+      const data = JSON.parse(localStorage.getItem('noukou_login_attempts') || '{"count":0,"ts":0}');
+      if (Date.now() - data.ts > LOCKOUT_MS) return { count: 0, ts: Date.now() };
+      return data;
+    }
+    function saveAttempts(count) {
+      localStorage.setItem('noukou_login_attempts', JSON.stringify({ count, ts: Date.now() }));
+    }
+    function resetAttempts() { localStorage.removeItem('noukou_login_attempts'); }
+
+    function checkLockout() {
+      const a = getAttempts();
+      const warn = document.getElementById('attempts-warning');
+      if (a.count >= MAX_ATTEMPTS) {
+        const remaining = Math.ceil((LOCKOUT_MS - (Date.now() - a.ts)) / 60000);
+        warn.textContent = `Trop de tentatives. Réessayez dans ${remaining} minute(s).`;
+        warn.style.display = 'block';
+        document.getElementById('submit-btn').disabled = true;
+        return true;
+      }
+      if (a.count > 0) {
+        warn.textContent = `Tentatives échouées : ${a.count}/${MAX_ATTEMPTS}`;
+        warn.style.display = 'block';
+      }
+      return false;
+    }
+
+    // ── Toggle mot de passe ──
+    document.getElementById('toggle-pw').addEventListener('click', function() {
+      const inp = document.getElementById('password');
+      const isHidden = inp.type === 'password';
+      inp.type = isHidden ? 'text' : 'password';
+      this.textContent = isHidden ? 'visibility' : 'visibility_off';
+    });
+
+    // ── Validation en temps réel ──
+    document.getElementById('email').addEventListener('blur', function() {
+      const err = document.getElementById('email-error');
+      const invalid = !validateEmail(this.value.trim());
+      err.classList.toggle('visible', invalid && this.value !== '');
+      this.classList.toggle('error', invalid && this.value !== '');
+    });
+
+    // ── Soumission du formulaire ──
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Vérification verrouillage
+      if (checkLockout()) return;
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember-me').checked;
+
+      // Validation côté client
+      let valid = true;
+      if (!validateEmail(email)) {
+        document.getElementById('email-error').classList.add('visible');
+        document.getElementById('email').classList.add('error');
+        valid = false;
+      }
+      if (!password) {
+        document.getElementById('pw-error').classList.add('visible');
+        document.getElementById('password').classList.add('error');
+        valid = false;
+      }
+      if (!valid) return;
+
+      setLoading(true);
+
+      try {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.token) {
+          // ✅ Authentification réussie
+          resetAttempts();
+          const storage = remember ? localStorage : sessionStorage;
+          storage.setItem('noukou_token', data.token);
+          if (data.user) storage.setItem('noukou_user', JSON.stringify(data.user));
+          showToast('Connexion réussie ! Redirection...', 'success');
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+
+        } else {
+          // ❌ Échec : incrémenter le compteur
+          const a = getAttempts();
+          saveAttempts(a.count + 1);
+          checkLockout();
+          const msg = data.detail || data.error || data.message || 'Identifiants incorrects.';
+          showToast(msg);
+        }
+
+      } catch (err) {
+        // Erreur réseau
+        showToast('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // ── Init : vérifier verrouillage au chargement ──
+    document.addEventListener('DOMContentLoaded', () => {
+      checkLockout();
+      // Si déjà connecté, rediriger
+      if (localStorage.getItem('noukou_token') || sessionStorage.getItem('noukou_token')) {
+        window.location.href = 'dashboard.html';
+      }
+    });
+  </script>
 </body>
 </html>
