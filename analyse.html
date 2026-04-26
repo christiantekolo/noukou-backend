@@ -169,6 +169,10 @@
 <span class="text-on-surface-variant">pH du sol</span>
 <span id="soil-ph" class="font-bold text-secondary">6.5 (Idéal)</span>
 </div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden relative">
+<div class="absolute inset-0 bg-gradient-to-r from-orange-400 via-emerald-400 to-blue-400 opacity-20"></div>
+<div id="soil-ph-bar" class="absolute top-0 h-full w-1.5 bg-[#012d1d] rounded-full transition-all duration-1000 ease-out" style="left: 50%;"></div>
+</div>
 </div>
 </div>
 <!-- Climate Conditions -->
@@ -184,11 +188,13 @@
 <div class="grid grid-cols-2 gap-4">
 <div class="text-center p-3 bg-white/10 rounded-lg">
 <p class="text-[10px] uppercase opacity-70">Humidité</p>
-<p id="climate-humidity" class="text-xl font-bold">68%</p>
+<p id="climate-humidity" class="text-xl font-bold mb-1">68%</p>
+<div class="w-full bg-black/20 h-1.5 rounded-full overflow-hidden"><div id="climate-humidity-bar" class="bg-blue-400 h-full w-[0%] transition-all duration-1000"></div></div>
 </div>
 <div class="text-center p-3 bg-white/10 rounded-lg">
 <p class="text-[10px] uppercase opacity-70">Temp. moy</p>
-<p id="climate-temp" class="text-xl font-bold">28°C</p>
+<p id="climate-temp" class="text-xl font-bold mb-1">28°C</p>
+<div class="w-full bg-black/20 h-1.5 rounded-full overflow-hidden"><div id="climate-temp-bar" class="bg-orange-400 h-full w-[0%] transition-all duration-1000"></div></div>
 </div>
 </div>
 </div>
@@ -361,10 +367,23 @@ function renderResults(data) {
   document.getElementById('soil-n-bar').style.width = Math.min(100, Math.round(soc / 0.8 * 100)) + '%';
   const ph = data.sol.soil_ph;
   document.getElementById('soil-ph').textContent = ph.toFixed(1) + (ph >= 5.5 && ph <= 7.0 ? ' (Idéal)' : ph < 5.5 ? ' (Acide)' : ' (Alcalin)');
+  
+  // Animation du curseur pH (échelle de 0 à 14 -> 0% à 100%)
+  const phPct = Math.min(100, Math.max(0, (ph / 14) * 100));
+  const phBar = document.getElementById('soil-ph-bar');
+  if (phBar) phBar.style.left = phPct + '%';
 
   // ── Climat ──
-  document.getElementById('climate-humidity').textContent = Math.round(data.climat.humidity_rel) + '%';
-  document.getElementById('climate-temp').textContent = data.climat.temp_moyenne.toFixed(1) + '°C';
+  const hum = data.climat.humidity_rel;
+  document.getElementById('climate-humidity').textContent = Math.round(hum) + '%';
+  const humBar = document.getElementById('climate-humidity-bar');
+  if (humBar) humBar.style.width = Math.min(100, Math.max(0, hum)) + '%';
+  
+  const temp = data.climat.temp_moyenne;
+  document.getElementById('climate-temp').textContent = temp.toFixed(1) + '°C';
+  const tempBar = document.getElementById('climate-temp-bar');
+  // Echelle temp: max 50°C
+  if (tempBar) tempBar.style.width = Math.min(100, Math.max(0, (temp / 50) * 100)) + '%';
 
   // ── Cultures + Variétés ──
   const grid = document.getElementById('crops-grid');
