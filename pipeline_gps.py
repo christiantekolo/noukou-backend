@@ -35,6 +35,8 @@ BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR      = os.path.join(BASE_DIR, "models")
 DATA_DIR        = os.path.join(BASE_DIR, "data")
 DATASET_V4_PATH = os.path.join(DATA_DIR, "NOUKOU_Predict_Dataset_v4.xlsx")
+if not os.path.exists(DATASET_V4_PATH):
+        DATASET_V4_PATH = os.path.join(BASE_DIR, "NOUKOU_Predict_Dataset_v4.xlsx")
 
 # ============================================================
 # iSDA AFRICA — AUTHENTIFICATION
