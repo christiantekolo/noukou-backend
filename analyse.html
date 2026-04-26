@@ -271,7 +271,198 @@
 </section>
 </main>
 <!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-t-3xl border-t border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 backdrop-blur-xl rounded-t-3xl border-t border-zinc-200/50 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-[#012d1d] hover:scale-105 transition-transform active:scale-90" href="index.html"><span class="material-symbols-outlined">home</span><span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider mt-1">Accueil</span></a>
+<a class="flex flex-col items-center justify-center text-[#012d1d] bg-[#f3f4f5] rounded-xl px-3 py-2" href="analyse.html"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">query_stats</span><span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider mt-1">Analyser</span></a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-[#012d1d] hover:scale-105 transition-transform active:scale-90" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider mt-1">Tableau</span></a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-[#012d1d] hover:scale-105 transition-transform active:scale-90" href="rapport.html"><span class="material-symbols-outlined">layers</span><span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider mt-1">Projets</span></a>
+</nav>
+
+<script>
+const API_URL = 'https://web-production-11c8c.up.railway.app';
+
+const CULTURE_ICONS = {
+  "soja":"🫘","maïs":"🌽","riz":"🌾","sorgho":"🌾","mil":"🌾","manioc":"🌿",
+  "igname":"🍠","arachide":"🥜","niébé":"🫘","haricot":"🫘","coton":"🌿",
+  "tomate":"🍅","piment":"🌶️","oignon":"🧅","gombo":"🌿","chou":"🥬",
+  "aubergine":"🍆","patate douce":"🍠","sésame":"🌱"
+};
+const CROP_IMAGES = {
+  "maïs": "https://lh3.googleusercontent.com/aida-public/AB6AXuAFxcDzVfjMrfR_bSzj0qnpR0BLcIe_x7N10s_lxEnHT2mQ4QlhFxI4nUgA0nmiA8BjbcpO6ZPnZ76aGxxhfDJhTbrvnRKN8MrD2VBGSOhXrItkqbvWYB6uY1SlA7NvEMrrPAYgvDft5_ByyZQTGyowLMPnWkjm2RfmULFNppQeiAi85HQfETFGp9xTXKPZesBVkCAjpfTVT_cmTo9X0vpLQ7vSXMgl9dSGUoNCnld5jbX8Wbz5yWZ5WMePMO2bZOJQxidEiuiyv-SE",
+  "soja":  "https://lh3.googleusercontent.com/aida-public/AB6AXuALwNGZk_JU3cg64Sy63Q-DRM7RnMitJa69prNB0HOiJgU6NEFRFLnZA0Uer-IhS26utxheKudzCMHa7_GPAQABE7yFw0MZlEsNwmiNzXDgL08HiEcgWLXVn3tV1u1zK0MR68usnDDpvsxjzslxnEMBd_GcMycTv6kmmqPazOpeRlBEbbjBP-0om-6lJmZ5Rn31d_wMybNK9I0-iVTNpY4vKwPCc5wuDMNp2AkyUPrp7tGkfRebQY_zERQDJlrTCb_o3R6sZiuvgSeh",
+  "tomate":"https://lh3.googleusercontent.com/aida-public/AB6AXuDwgjEmwYFpXc0fMO9v3rlyhaskeuAsk_NPy0vekbAM2dr-IcS3VhlDUCCrphptBuFSJFQVnVNxqSwsn3oa8pv4Ft3AfZP4Bh7fHIeSNzWhPBsZJsaapTO4s28SfGBRYsRVwZV3bEu4LSauYR_6NuoU1r2brLSDW9w3uzJpuZNfaqzFdVVxZjv24Aeo1Dv5w_9QxgaCNerXcDAFo3o76kg8NSkiiis7WVefwq6EQ2qv9V7MN3wqajvqVGrLLxMYpi_rVDpQaJG-Tuwp"
+};
+const DEFAULT_IMG = "https://lh3.googleusercontent.com/aida-public/AB6AXuAMjdyZSQSRdNgX8nUFdbiJhLuAvocC2_7rIbxKE1HB5gtiQfdf7-gOGlwTtBYgy_eD0n6UUgle_rsmdKtsrY0jCqjwQDn0vvp8U055vIyKAc0W3kuUxsq8bmLxlOwtAx8pTbFx8xQRP4fXHcF7ixKmHhGVmm6XoguHQpRQTbIOLcJOQQJ9GRLZFOQJboZCT7PuzJjiSFnohzf2JVaH_yJ5GgSbMKtadDAsjNDir6CyfQF9JUkMG59ZWzNjntzmCT-Y8ABxSOlj7Qb8";
+
+let map, marker;
+
+function initMap() {
+  if (map) return;
+  map = L.map('map').setView([8.6195, 0.8248], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  map.on('click', e => {
+    document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
+    document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
+    placeMarker(e.latlng.lat, e.latlng.lng);
+  });
+  setTimeout(() => map.invalidateSize(), 200);
+}
+
+function placeMarker(lat, lng) {
+  if (marker) map.removeLayer(marker);
+  marker = L.marker([lat, lng]).addTo(map);
+  map.setView([lat, lng], 10);
+}
+
+document.getElementById('getLocation').addEventListener('click', () => {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    document.getElementById('latitude').value = lat.toFixed(6);
+    document.getElementById('longitude').value = lng.toFixed(6);
+    initMap();
+    placeMarker(lat, lng);
+  }, () => {
+    // Fallback Atakpamé si géolocalisation refusée
+    document.getElementById('latitude').value = '7.533';
+    document.getElementById('longitude').value = '1.124';
+    initMap();
+    placeMarker(7.533, 1.124);
+  });
+});
+
+function getScoreColor(score) {
+  if (score >= 80) return '#2d6a4f';
+  if (score >= 60) return '#e9a71a';
+  return '#c1121f';
+}
+
+function renderResults(data) {
+  // ── Sol ──
+  const soc = data.sol.soc_gkg;
+  const nLevel = soc >= 0.6 ? 'Élevé' : soc >= 0.4 ? 'Moyen' : 'Faible';
+  document.getElementById('soil-n').textContent = nLevel;
+  document.getElementById('soil-n-bar').style.width = Math.min(100, Math.round(soc / 0.8 * 100)) + '%';
+  const ph = data.sol.soil_ph;
+  document.getElementById('soil-ph').textContent = ph.toFixed(1) + (ph >= 5.5 && ph <= 7.0 ? ' (Idéal)' : ph < 5.5 ? ' (Acide)' : ' (Alcalin)');
+
+  // ── Climat ──
+  document.getElementById('climate-humidity').textContent = Math.round(data.climat.humidity_rel) + '%';
+  document.getElementById('climate-temp').textContent = data.climat.temp_moyenne.toFixed(1) + '°C';
+
+  // ── Cultures + Variétés ──
+  const grid = document.getElementById('crops-grid');
+  grid.innerHTML = '';
+  data.recommandations.forEach((rec, i) => {
+    const key = (rec.culture_fr || '').toLowerCase();
+    const img = CROP_IMAGES[key] || DEFAULT_IMG;
+    const icon = CULTURE_ICONS[key] || '🌱';
+    const color = getScoreColor(rec.score_final);
+    const niveauBadge = rec.niveau === 'Optimal'
+      ? '<span style="background:#c1ecd4;color:#1b4332;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Optimal</span>'
+      : rec.niveau === 'Suboptimal'
+        ? '<span style="background:#ffdcbd;color:#7d562d;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Suboptimal</span>'
+        : '<span style="background:#ffdad8;color:#55000b;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Risqué</span>';
+
+    const varietes = (rec.varietes_top3 || []);
+    const varietesHTML = varietes.map(v => `
+      <div style="background:#f3f4f5;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;border-left:3px solid #012d1d;">
+        <div style="font-weight:700;font-size:0.9rem;color:#012d1d;">
+          ${v.variete}
+          ${v.inscrit_2024 ? '<span style="background:#c1ecd4;color:#1b4332;padding:1px 6px;border-radius:99px;font-size:0.65rem;font-weight:700;margin-left:4px;">✅ 2024</span>' : ''}
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:0.3rem;font-size:0.78rem;color:#414844;flex-wrap:wrap;">
+          <span>🔄 ${v.cycle_jours}j</span>
+          <span>📈 ${(v.rendement_opt_kgha / 1000).toFixed(1)} T/ha max</span>
+          <span>Score: ${v.score_adaptation}/100</span>
+        </div>
+      </div>
+    `).join('');
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;border:1px solid rgba(193,200,194,0.3);margin-bottom:0;';
+    card.innerHTML = `
+      <div style="position:relative;height:140px;overflow:hidden;">
+        <img src="${img}" alt="${rec.culture_fr}" style="width:100%;height:100%;object-fit:cover;"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(1,45,29,0.9),transparent);"></div>
+        <div style="position:absolute;bottom:12px;left:12px;">
+          <span style="font-size:1.4rem;">${icon}</span>
+          <span style="color:#fff;font-weight:700;font-size:1rem;margin-left:4px;text-transform:capitalize;">${rec.culture_fr}</span>
+        </div>
+        <div style="position:absolute;top:10px;right:10px;">${niveauBadge}</div>
+      </div>
+      <div style="padding:1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <span style="font-weight:800;color:${color};font-size:1.1rem;">${rec.score_final}/100</span>
+          <span style="font-size:0.8rem;color:#414844;">${rec.yield_predit_tha} T/ha</span>
+        </div>
+        <div style="width:100%;height:6px;background:#e7e8e9;border-radius:3px;margin-bottom:0.75rem;overflow:hidden;">
+          <div style="width:${rec.score_final}%;height:100%;background:${color};border-radius:3px;transition:width 1s ease;"></div>
+        </div>
+        ${varietes.length > 0 ? `
+        <button onclick="this.classList.toggle('open');this.nextElementSibling.style.maxHeight=this.classList.contains('open')?'500px':'0';"
+          style="width:100%;padding:0.6rem 0.75rem;background:#f3f4f5;border:1px solid rgba(193,200,194,0.5);border-radius:8px;font-size:0.8rem;font-weight:600;color:#012d1d;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          🌿 Variétés recommandées (${varietes.length}) <span>▼</span>
+        </button>
+        <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease;padding-top:0;">
+          <div style="padding-top:0.5rem;">${varietesHTML}</div>
+        </div>` : ''}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ── Risque & ROI ──
+  const avgScore = Math.round(data.recommandations.reduce((s,r) => s + r.score_final, 0) / data.recommandations.length);
+  document.getElementById('risk-level').textContent = avgScore >= 80 ? 'Bas' : avgScore >= 60 ? 'Moyen' : 'Élevé';
+  const bestRatio = data.recommandations[0]?.rendement_relatif || 1;
+  document.getElementById('roi-value').textContent = '+' + Math.round((bestRatio - 0.3) * 200) + '% ROI';
+}
+
+document.getElementById('launch-btn').addEventListener('click', async () => {
+  const lat = parseFloat(document.getElementById('latitude').value);
+  const lng = parseFloat(document.getElementById('longitude').value);
+  if (!lat || !lng) { alert('Veuillez sélectionner des coordonnées GPS.'); return; }
+
+  document.getElementById('results-container').classList.add('hidden');
+  const loader = document.getElementById('loader');
+  loader.classList.remove('hidden', 'lg:hidden');
+
+  try {
+    const response = await fetch(`${API_URL}/api/analyse`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat, lon: lng })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || err.error || `Erreur serveur (${response.status})`);
+    }
+    const data = await response.json();
+    if (!data.success) throw new Error(data.error || 'Analyse échouée');
+
+    loader.classList.add('hidden');
+    document.getElementById('results-container').classList.remove('hidden');
+    renderResults(data);
+
+  } catch (error) {
+    loader.classList.add('hidden');
+    document.getElementById('results-container').classList.remove('hidden');
+    document.getElementById('crops-grid').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:2rem;color:#55000b;background:#ffdad8;border-radius:12px;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">⚠️</div>
+        <strong>Analyse impossible</strong><br>
+        <span style="font-size:0.85rem;color:#414844;">${error.message}</span><br>
+        <button onclick="document.getElementById('launch-btn').click()" style="margin-top:1rem;padding:0.6rem 1.2rem;background:#012d1d;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔄 Réessayer</button>
+      </div>`;
+  }
+});
+
+document.addEventListener('DOMContentLoaded', initMap);
+</script>
+
+</body></html>
+
 <a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-[#012d1d] dark:hover:text-emerald-400 hover:scale-105 transition-transform duration-300 tap-highlight-none active:scale-90" href="index.html">
 <span class="material-symbols-outlined">home</span>
 <span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider mt-1">Accueil</span>
