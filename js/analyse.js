@@ -9,10 +9,9 @@ let map = null;
 let marker = null;
 let mapInitialized = false;
 
-// URL du backend — changer pour la vraie URL après déploiement
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8000'        // dev local
-      : 'https://web-production-11c8c.up.railway.app'; // production
+  : 'https://web-production-11c8c.up.railway.app'; // production
 
 // ── Tabs ──
 document.querySelectorAll('.tab-btn').forEach(btn => {
