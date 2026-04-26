@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Espace Utilisateur - NOUKOU</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#012d1d",
+                        "primary-fixed": "#c1ecd4",
+                        "on-primary-fixed": "#002114",
+                        "secondary": "#7d562d",
+                        "surface": "#f8f9fa",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#414844",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(1, 45, 29, 0.15);
+        }
+        .input-animated:focus ~ .label-animated,
+        .input-animated:not(:placeholder-shown) ~ .label-animated {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #012d1d;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-hidden bg-surface">
+
+    <!-- Section Gauche : Image et Branding -->
+    <div class="hidden md:flex md:w-1/2 relative bg-primary items-center justify-center p-12 overflow-hidden">
+        <div class="absolute inset-0 opacity-40">
+            <img class="w-full h-full object-cover mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFIgOMSASN6iW_Hobrweg2JMVrOGCT_0bNvU5eFRL5-flNj0pSxqd6AlO-0yiTY-2s3SvoJcrkPq-Rl6MVwgm1Vx7I4v9IpG6OIvQw8ivcqJPjDo07jWPEPyHnhpFUHSCVpkrX-IC8jjZwyoWjPvlLknfClZpZ9bULySF4bDlgkFr4GC1xCfaItAa9CAJAGgBOIh-w6NVL-ITpNhG2wbSI5c_iIBCa_MtOCbuPAXEKdvOD14LRF43vios1raPho1ImVFohy7zC8PXf" alt="Agriculture field"/>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#012d1d] via-[#012d1d]/80 to-transparent"></div>
+        
+        <div class="relative z-10 text-white max-w-lg">
+            <a href="index.html" class="flex items-center gap-3 mb-16 inline-flex hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined text-4xl">eco</span>
+                <span class="font-headline font-extrabold text-3xl tracking-tighter">NOUKOU</span>
+            </a>
+            
+            <h1 class="text-4xl lg:text-5xl font-black mb-6 leading-tight">L'intelligence au service de vos terres.</h1>
+            <p class="text-lg text-white/80 font-medium mb-12">Connectez-vous pour accéder à vos analyses prédictives, suivre l'évolution de vos parcelles et gérer votre portefeuille agricole.</p>
+            
+            <div class="flex gap-4 items-center">
+                <div class="flex -space-x-4">
+                    <img class="w-12 h-12 rounded-full border-2 border-[#012d1d] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu_ke29ZdWxRNt-a4VRP2oWfkxP_rQJnuwJGWe0n6wIV3dgERjbw056ONWZdZYPTym3BXV9zdfVi1ZAvT-1rl6aG1l3sxdnhCNI_-mAHu3RtjpCIphK-Tot3d6clwIyh_Qjg8d5p0J3-C2ofrgpa_0pysEGsKiHvo2iIIwJ8djJpU5fE7XvBR62l4q9rLBg1rfE5i8mL5tgRdTWc408YsM88jUQfegvx9Q9KCYYuyWu-t5NPewsm0S3YBmemhC0cERsXKWyNstQTuv" alt="User"/>
+                    <img class="w-12 h-12 rounded-full border-2 border-[#012d1d] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGWhd6Sc_5mSahasxmCximqCC9ti4gv_BRQs7a5PxsGtpTJ8Pz0vgYYnxDqDFXBP9C2jChy4_f7VGNwTZMaEKJYJTA4mjus5HF6EYcT75AH_IK-FECViOkBnTdhWjElfsODp76FsEPqJXMxoxD8DJMimltmZ22gWx3-d7frWgcbXtBMUpw3nnZ6fEMiCT5CrI5mXMR2zx76wWNTQVctF9_V2Gjb_vY42UYK6kW0IJVPO3TDeVg9JgGeeU3apWFtH4HRhMw_zyYUfDN" alt="User"/>
+                    <div class="w-12 h-12 rounded-full border-2 border-[#012d1d] bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-sm">
+                        +1.2k
+                    </div>
+                </div>
+                <p class="text-sm font-medium text-white/90">Rejoignez notre réseau d'experts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Droite : Formulaire -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-20 relative">
+        <a href="index.html" class="md:hidden absolute top-6 left-6 flex items-center gap-2 text-primary font-bold">
+            <span class="material-symbols-outlined">eco</span> NOUKOU
+        </a>
+
+        <div class="w-full max-w-md glass-panel p-8 sm:p-12 rounded-[2rem]">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-extrabold text-primary mb-2">Bienvenue</h2>
+                <p class="text-on-surface-variant font-medium">Entrez vos identifiants pour continuer</p>
+            </div>
+
+            <form action="dashboard.html" method="GET" class="space-y-6">
+                <!-- Champ Email -->
+                <div class="relative">
+                    <input type="email" id="email" class="input-animated block w-full px-4 py-4 text-on-surface bg-transparent border-2 border-zinc-200 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary transition-colors peer" placeholder=" " required />
+                    <label for="email" class="label-animated absolute text-on-surface-variant duration-300 transform -translate-y-1/2 top-1/2 left-4 z-10 origin-[0] cursor-text">Adresse Email</label>
+                    <span class="material-symbols-outlined absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400">mail</span>
+                </div>
+
+                <!-- Champ Mot de passe -->
+                <div class="relative">
+                    <input type="password" id="password" class="input-animated block w-full px-4 py-4 text-on-surface bg-transparent border-2 border-zinc-200 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-primary transition-colors peer" placeholder=" " required />
+                    <label for="password" class="label-animated absolute text-on-surface-variant duration-300 transform -translate-y-1/2 top-1/2 left-4 z-10 origin-[0] cursor-text">Mot de passe</label>
+                    <span class="material-symbols-outlined absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 cursor-pointer hover:text-primary transition-colors" onclick="const p=document.getElementById('password'); p.type=p.type==='password'?'text':'password'; this.textContent=p.type==='password'?'visibility_off':'visibility';">visibility_off</span>
+                </div>
+
+                <!-- Options -->
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="rounded border-zinc-300 text-primary focus:ring-primary w-4 h-4 transition-colors" />
+                        <span class="font-medium text-on-surface-variant">Se souvenir de moi</span>
+                    </label>
+                    <a href="#" class="font-bold text-primary hover:text-secondary transition-colors">Mot de passe oublié ?</a>
+                </div>
+
+                <!-- Bouton -->
+                <button type="submit" class="w-full bg-primary text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-[#02402a] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2">
+                    Connexion <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="mt-10 text-center">
+                <p class="text-on-surface-variant font-medium">
+                    Nouveau sur Noukou ? 
+                    <a href="#" class="font-bold text-primary hover:text-secondary transition-colors ml-1">Créer un compte</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
