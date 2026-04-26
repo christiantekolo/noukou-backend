@@ -145,7 +145,7 @@ function launchAnalysis() {
   analyserParcelle(selectedLat, selectedLon);
 }
 
-// ── Fonction d'appel à l'API (avec fallback sur le mock) ──
+// ── Fonction d'appel à l'API (sans mock) ──
 async function analyserParcelle(lat, lon) {
   try {
     const response = await fetch(`${API_URL}/api/analyse`, {
@@ -156,23 +156,26 @@ async function analyserParcelle(lat, lon) {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'Erreur serveur');
+      throw new Error(err.detail || err.error || 'Erreur serveur');
     }
 
     const data = await response.json();
 
-    if (!data.success) throw new Error(data.error);
+    if (!data.success) throw new Error(data.error || 'Analyse échouée');
 
-    // Enregistrement des données complètes pour la sauvegarde et le PDF
     lastAnalysisData = data;
     displayResults(data);
 
   } catch (error) {
-    console.warn('API indisponible ou erreur, utilisation du mock :', error.message);
-    // Fallback : appel à la fonction existante du fichier mock-data.js
-    const mockData = await fetchRecommendation(lat, lon);
-    lastAnalysisData = mockData;
-    displayResults(mockData);
+    const container = document.getElementById('results-container');
+    container.innerHTML = `
+      <div style="text-align:center; padding:2rem; color:#55000b; background:#ffdad8; border-radius:12px;">
+        <div style="font-size:2rem; margin-bottom:1rem;">⚠️</div>
+        <strong>Analyse impossible</strong><br>
+        <span style="font-size:0.9rem; color:#414844;">${error.message}</span><br>
+        <button onclick="launchAnalysis()" style="margin-top:1rem; padding:0.75rem 1.5rem; background:#012d1d; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">🔄 Réessayer</button>
+      </div>
+    `;
   }
 }
 
