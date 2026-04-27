@@ -364,6 +364,8 @@ def get_features_from_gps(lat, lon, culture_en,
 
     row = {
         "culture"              : culture_en,
+        "Item"                 : culture_en,
+        "Crop"                 : culture_en,
         "admin_1"              : zone,
         "lat"                  : lat,
         "lon"                  : lon,
@@ -651,13 +653,16 @@ def recommend_for_gps(lat, lon, token=None, top_n=3, verbose=False):
             soil["clay_pct"],
             top_n=3
         )
-        score_A = varietes[0]["score_adaptation"] if varietes else 50
 
         # Score final combiné
         poids_A     = 1.0 - poids_B
         yield_ref   = YIELD_MOYEN_TOGO.get(culture_en, yield_predit)
         yield_ratio = min(1.5, yield_predit/yield_ref if yield_ref>0 else 1.0)
         score_B     = round(yield_ratio / 1.5 * 100)
+
+        # Si pas de variété dans le catalogue, le score A ne doit pas plomber le score final (on prend un score neutre/bon basé sur le ML)
+        score_A = varietes[0]["score_adaptation"] if varietes else max(75, score_B)
+        
         score_final = round(poids_A * score_A + poids_B * score_B)
 
         niveau = ("Optimal"   if score_final >= 80
