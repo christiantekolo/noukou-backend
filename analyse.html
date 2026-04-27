@@ -659,6 +659,7 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
   const loader = document.getElementById('loader');
   loader.classList.remove('hidden', 'lg:hidden');
   startLoaderAnimation();
+  const startTime = Date.now();
 
   try {
     const response = await fetch(`${API_URL}/api/analyse`, {
@@ -687,12 +688,19 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
     portfolio.unshift(entry);
     localStorage.setItem('noukou_portfolio', JSON.stringify(portfolio));
 
-    stopLoaderAnimation(true);
+    // Délai artificiel pour forcer l'animation à jouer au moins 10 secondes (effet "IA au travail")
+    const elapsedTime = Date.now() - startTime;
+    const minWaitTime = 12000; // 12 secondes minimum
+    const remainingWait = Math.max(0, minWaitTime - elapsedTime);
+
     setTimeout(() => {
-      loader.classList.add('hidden');
-      document.getElementById('results-container').classList.remove('hidden');
-      renderResults(data);
-    }, 800);
+      stopLoaderAnimation(true);
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        document.getElementById('results-container').classList.remove('hidden');
+        renderResults(data);
+      }, 800);
+    }, remainingWait);
 
   } catch (error) {
     stopLoaderAnimation(false);
