@@ -94,6 +94,7 @@
 
   </head>
 <body class="text-on-surface">
+<script src="js/auth-guard.js"></script>
 <!-- TopAppBar -->
 <header class="bg-[#012d1d] flex justify-between items-center w-full px-6 py-4 h-20 fixed top-0 z-50">
   <a href="index.html" class="flex items-center gap-3">
@@ -486,7 +487,7 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
   try {
     const response = await fetch(`${API_URL}/api/analyse`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getNoukouToken() },
       body: JSON.stringify({ lat, lon: lng })
     });
     if (!response.ok) {
@@ -516,7 +517,5 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', initMap);
 </script>
 
-<script src="js/auth-guard.js"></script>
-<script>requireAuth();</script>
 </body></html>
 

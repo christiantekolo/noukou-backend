@@ -94,6 +94,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </head>
 <body class="bg-background text-on-background min-h-screen pb-32">
+<script src="js/auth-guard.js"></script>
 <!-- TopAppBar -->
 <header class="bg-[#012d1d] flex justify-between items-center w-full px-6 py-4 h-20 fixed top-0 z-50">
   <a href="index.html" class="flex items-center gap-3">
@@ -351,6 +352,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
-<script src="js/auth-guard.js"></script>
 <script>requireAuth();</script>
 </body></html>
