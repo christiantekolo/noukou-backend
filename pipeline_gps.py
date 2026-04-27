@@ -403,10 +403,25 @@ def get_features_from_gps(lat, lon, culture_en,
     }
 
     m = load_models()
-    X = pd.DataFrame([{
-        **{c: row.get(c, 0)       for c in m["num_cols"]},
-        **{c: row.get(c, "Maize") for c in m["cat_cols"]},
-    }])[m["num_cols"] + m["cat_cols"]]
+    
+    # Construction robuste des features pour éviter le crash du modèle (One-Hot ou Categorical)
+    feat_dict = {}
+    for c in m["num_cols"]:
+        feat_dict[c] = row.get(c, 0)
+        
+    for c in m["cat_cols"]:
+        if c in row:
+            feat_dict[c] = row[c]
+        else:
+            # Gestion des colonnes One-Hot (ex: 'Item_Maize', 'admin_1_Savanes')
+            if "Item_" in c or "Crop_" in c or "culture_" in c:
+                feat_dict[c] = 1.0 if str(row.get("culture", "")) in c else 0.0
+            elif "admin_1_" in c:
+                feat_dict[c] = 1.0 if str(row.get("admin_1", "")) in c else 0.0
+            else:
+                feat_dict[c] = 0.0  # Valeur numérique par défaut pour les dummies
+
+    X = pd.DataFrame([feat_dict])[m["num_cols"] + m["cat_cols"]]
 
     return X, zone
 
@@ -673,8 +688,15 @@ def recommend_for_gps(lat, lon, token=None, top_n=3, verbose=False):
         # Score final combiné
         poids_A     = 1.0 - poids_B
         yield_ref   = YIELD_MOYEN_TOGO.get(culture_en, yield_predit)
-        yield_ratio = min(1.5, yield_predit/yield_ref if yield_ref>0 else 1.0)
-        score_B     = round(yield_ratio / 1.5 * 100)
+        
+        # Rendement relatif (1.0 = moyenne nationale)
+        yield_ratio = yield_predit / yield_ref if yield_ref > 0 else 1.0
+        
+        # Transformation en score B sur 100 :
+        # - ratio 0.5 (moitié de la moyenne) -> score 40
+        # - ratio 1.0 (exactement la moyenne) -> score 75
+        # - ratio 1.5 (50% de plus que la moyenne) -> score 100
+        score_B = min(100, max(0, round(40 + (yield_ratio - 0.5) * 70)))
 
         # Si pas de variété dans le catalogue, pénaliser fortement.
         # Les cultures ML avec de vraies variétés doivent TOUJOURS dominer
