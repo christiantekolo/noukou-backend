@@ -27,31 +27,10 @@ function logout() {
   window.location.replace('login.html');
 }
 
-// ── Migration : ancienne clé globale → clé par utilisateur ────
-// Exécuté une seule fois au chargement si nécessaire
-(function migrateOldPortfolio() {
-  const oldData = localStorage.getItem('noukou_portfolio');
-  if (!oldData || oldData === '[]') {
-    // Rien à migrer — supprimer la clé vide résiduelle
-    localStorage.removeItem('noukou_portfolio');
-    return;
-  }
-  // Trouver l'email de l'utilisateur actuel
-  let email = null;
-  try {
-    const u = JSON.parse(sessionStorage.getItem('noukou_user') || localStorage.getItem('noukou_user') || '{}');
-    if (u.email) email = u.email;
-  } catch(e) {}
-  if (email) {
-    const newKey = 'noukou_portfolio_' + email;
-    // Ne migrer que si la clé utilisateur n'existe pas encore
-    if (!localStorage.getItem(newKey) || localStorage.getItem(newKey) === '[]') {
-      localStorage.setItem(newKey, oldData);
-    }
-    // Supprimer l'ancienne clé globale définitivement
-    localStorage.removeItem('noukou_portfolio');
-  }
-})();
+// ── Nettoyage : supprimer l'ancienne clé globale partagée ─────
+// Cette clé n'est plus utilisée. Chaque utilisateur a sa propre
+// clé 'noukou_portfolio_email'. On supprime inconditionnellement.
+localStorage.removeItem('noukou_portfolio');
 
 // ── Redirection immédiate si pas de token ──────────────────────
 // (exécuté SYNCHRONEMENT avant tout rendu de la page)

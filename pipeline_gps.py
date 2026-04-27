@@ -333,7 +333,10 @@ def load_models():
     return _models_cache
 
 def predict_hybrid(X_new, regions):
-    """RF pour 4 régions + Ridge pour Savanes."""
+    """RF pour 4 régions + Ridge pour Savanes.
+    NOTE: Le modèle prédit en espace log1p. On applique expm1 pour
+    revenir en T/ha réel (voir yield_model_meta.json → target_transform).
+    """
     m    = load_models()
     pred = np.zeros(len(X_new))
     reg  = np.array(regions)
@@ -344,6 +347,10 @@ def predict_hybrid(X_new, regions):
     if (~sav).any():
         pred[~sav] = m["rf"].predict(
             X_new.iloc[list(np.where(~sav)[0])])
+    # Transformation inverse : log1p → expm1 pour revenir en T/ha
+    pred = np.expm1(pred)
+    # Sécurité : empêcher les valeurs négatives
+    pred = np.maximum(pred, 0.0)
     return pred
 
 # ============================================================
