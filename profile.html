@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon Profil - NOUKOU</title>
+  <meta name="description" content="Gérez votre profil NOUKOU et vos informations personnelles."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { headline: ['Manrope'], body: ['Inter'] } } }
+    }
+  </script>
+  <style>
+    :root {
+      --primary: #012d1d; --primary-light: #1b4332; --primary-fixed: #c1ecd4;
+      --surface: #f8f9fa; --on-surface: #191c1d; --on-surface-variant: #414844;
+      --error: #ba1a1a; --success: #2d6a4f; --outline: #c1c8c2;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--surface); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .avatar-ring {
+      background: conic-gradient(from 0deg, #16a34a, #f59e0b, #ef4444, #16a34a);
+      padding: 3px; border-radius: 50%;
+    }
+    .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--on-surface-variant); margin-bottom: 0.35rem; }
+    .field input, .field textarea, .field select {
+      width: 100%; padding: 0.82rem 1rem; border: 1.5px solid var(--outline);
+      border-radius: 0.75rem; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+      color: var(--on-surface); background: #fff; transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,45,29,0.1);
+    }
+    .btn-primary {
+      padding: 0.9rem 2rem; background: var(--primary); color: #fff;
+      border: none; border-radius: 0.85rem; font-size: 0.95rem; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(1,45,29,0.25);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-light); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .spinner { width: 1rem; height: 1rem; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 0.4rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--error); color: #fff; padding: 0.85rem 1.5rem; border-radius: 0.75rem; font-size: 0.9rem; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: transform 0.35s cubic-bezier(.34,1.56,.64,1); z-index: 200; white-space: nowrap; max-width: 90vw; }
+    #toast.success { background: var(--success); }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    .tab-btn { padding: 0.65rem 1.25rem; border-radius: 0.6rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--on-surface-variant); }
+    .tab-btn.active { background: var(--primary); color: #fff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .completion-bar { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; }
+    .completion-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #16a34a, #84cc16); transition: width 0.6s ease; }
+  </style>
+</head>
+<body class="min-h-screen pb-32">
+
+<!-- TopAppBar -->
+<header class="bg-[#012d1d] flex justify-between items-center w-full px-6 py-4 h-20 fixed top-0 z-50">
+  <a href="index.html" class="flex items-center gap-3">
+    <img src="img/logo.png" alt="NOUKOU Logo" class="h-12 w-auto object-contain"/>
+  </a>
+  <nav class="hidden md:flex gap-6 items-center">
+    <a class="text-white/70 hover:text-white font-medium text-sm transition-colors" href="index.html">Accueil</a>
+    <a class="text-white/70 hover:text-white font-medium text-sm transition-colors" href="analyse.html">Analyser</a>
+    <a class="text-white/70 hover:text-white font-medium text-sm transition-colors" href="dashboard.html">Tableau</a>
+    <a class="text-white/70 hover:text-white font-medium text-sm transition-colors" href="rapport.html">Projets</a>
+    <button onclick="logout()" class="text-white/60 hover:text-red-400 font-medium text-sm transition-colors flex items-center gap-1">
+      <span class="material-symbols-outlined text-sm">logout</span> Déconnexion
+    </button>
+  </nav>
+  <!-- Avatar mobile -->
+  <div class="md:hidden flex items-center gap-3">
+    <div class="avatar-ring">
+      <div class="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center overflow-hidden">
+        <img id="nav-avatar" src="" alt="" class="w-full h-full object-cover hidden" data-user-avatar/>
+        <span class="text-white font-bold text-sm" data-user-initials>?</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="pt-24 px-4 md:px-8 max-w-4xl mx-auto">
+
+  <!-- Header profil -->
+  <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-6">
+    <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+
+      <!-- Avatar upload -->
+      <div class="relative flex-shrink-0">
+        <div class="avatar-ring">
+          <div class="w-28 h-28 rounded-full bg-emerald-800 flex items-center justify-center overflow-hidden relative">
+            <img id="profile-photo" src="" alt="Photo de profil" class="w-full h-full object-cover hidden"/>
+            <span id="profile-initials" class="text-white font-black text-3xl">?</span>
+          </div>
+        </div>
+        <label for="photo-input" class="absolute bottom-1 right-1 w-9 h-9 bg-[#012d1d] rounded-full flex items-center justify-center cursor-pointer hover:bg-emerald-700 transition-colors shadow-lg" title="Changer la photo">
+          <span class="material-symbols-outlined text-white text-base">photo_camera</span>
+        </label>
+        <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" class="hidden"/>
+      </div>
+
+      <!-- Infos header -->
+      <div class="flex-1 text-center md:text-left">
+        <h1 id="display-name" class="text-2xl font-extrabold text-[#012d1d] font-['Manrope']">Chargement...</h1>
+        <p id="display-email" class="text-gray-500 text-sm mt-1"></p>
+        <p id="display-job" class="text-emerald-700 font-medium text-sm mt-1"></p>
+
+        <!-- Complétion profil -->
+        <div class="mt-4">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs text-gray-500">Profil complété</span>
+            <span id="completion-pct" class="text-xs font-bold text-emerald-700">0%</span>
+          </div>
+          <div class="completion-bar w-full md:w-64">
+            <div id="completion-fill" class="completion-fill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge membre -->
+      <div class="text-center">
+        <div class="inline-flex flex-col items-center bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-3">
+          <span class="material-symbols-outlined text-emerald-600 text-2xl" style="font-variation-settings:'FILL' 1">verified</span>
+          <span class="text-emerald-800 font-bold text-xs mt-1">Membre Vérifié</span>
+          <span id="member-since" class="text-emerald-600 text-[10px]">Depuis —</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="flex gap-2 p-4 border-b border-gray-100">
+      <button class="tab-btn active" onclick="switchTab('info')">
+        <span class="material-symbols-outlined align-middle text-base mr-1">person</span>Informations
+      </button>
+      <button class="tab-btn" onclick="switchTab('agri')">
+        <span class="material-symbols-outlined align-middle text-base mr-1">agriculture</span>Profil Agricole
+      </button>
+      <button class="tab-btn" onclick="switchTab('security')">
+        <span class="material-symbols-outlined align-middle text-base mr-1">shield</span>Sécurité
+      </button>
+    </div>
+
+    <div class="p-6">
+
+      <!-- Tab : Informations personnelles -->
+      <div id="tab-info" class="tab-panel active">
+        <form id="info-form" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="field">
+            <label for="f-name">Nom complet *</label>
+            <input type="text" id="f-name" placeholder="Jean Dupont" required/>
+          </div>
+          <div class="field">
+            <label for="f-email">Email (non modifiable)</label>
+            <input type="email" id="f-email" placeholder="vous@exemple.com" readonly class="opacity-60 cursor-not-allowed"/>
+          </div>
+          <div class="field">
+            <label for="f-phone">Téléphone</label>
+            <input type="tel" id="f-phone" placeholder="+228 90 00 00 00"/>
+          </div>
+          <div class="field">
+            <label for="f-country">Pays</label>
+            <select id="f-country">
+              <option value="">— Sélectionner —</option>
+              <option>Togo</option><option>Bénin</option><option>Ghana</option>
+              <option>Côte d'Ivoire</option><option>Sénégal</option><option>Mali</option>
+              <option>Burkina Faso</option><option>Niger</option><option>Nigeria</option>
+              <option>France</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-city">Ville</label>
+            <input type="text" id="f-city" placeholder="Lomé"/>
+          </div>
+          <div class="field md:col-span-2">
+            <label for="f-bio">Biographie courte</label>
+            <textarea id="f-bio" rows="3" placeholder="Parlez de votre expérience agricole..." maxlength="500"></textarea>
+          </div>
+          <div class="md:col-span-2 flex justify-end">
+            <button type="submit" class="btn-primary" id="info-save-btn">
+              <span class="btn-text">Enregistrer les informations</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab : Profil Agricole -->
+      <div id="tab-agri" class="tab-panel">
+        <form id="agri-form" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="field">
+            <label for="f-profession">Rôle / Profession</label>
+            <select id="f-profession">
+              <option value="">— Sélectionner —</option>
+              <option>Agriculteur</option>
+              <option>Investisseur agricole</option>
+              <option>Agronome / Consultant</option>
+              <option>Conseiller financier</option>
+              <option>Chercheur / Académique</option>
+              <option>ONG / Association</option>
+              <option>Fonctionnaire / Gouvernement</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-surface">Surface agricole gérée (ha)</label>
+            <input type="text" id="f-surface" placeholder="ex: 5, 10-50, &gt;100"/>
+          </div>
+          <div class="md:col-span-2">
+            <p class="text-sm text-gray-500 bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+              <span class="material-symbols-outlined align-middle text-emerald-600 mr-1" style="font-size:1.1rem">info</span>
+              Ces informations nous permettent de personnaliser vos analyses et recommandations selon votre profil agricole.
+            </p>
+          </div>
+          <div class="md:col-span-2 flex justify-end">
+            <button type="submit" class="btn-primary" id="agri-save-btn">
+              <span class="btn-text">Enregistrer le profil agricole</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab : Sécurité -->
+      <div id="tab-security" class="tab-panel">
+        <div class="space-y-6">
+          <div class="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+            <h3 class="font-bold text-[#012d1d] mb-1">Mot de passe</h3>
+            <p class="text-sm text-gray-500 mb-4">La modification du mot de passe sera disponible dans une prochaine mise à jour.</p>
+            <button disabled class="btn-primary opacity-50 cursor-not-allowed text-sm py-2 px-4">
+              Changer le mot de passe (bientôt)
+            </button>
+          </div>
+          <div class="p-5 bg-red-50 rounded-2xl border border-red-100">
+            <h3 class="font-bold text-red-700 mb-1">Zone de danger</h3>
+            <p class="text-sm text-red-500 mb-4">La déconnexion supprime votre session de cet appareil.</p>
+            <button onclick="logout()" class="py-2 px-5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors">
+              <span class="material-symbols-outlined align-middle text-base mr-1">logout</span>Se déconnecter
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Bottom Nav (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 shadow-lg rounded-t-3xl">
+  <a class="flex flex-col items-center text-gray-400 hover:text-[#012d1d] transition-colors" href="index.html">
+    <span class="material-symbols-outlined">home</span>
+    <span class="text-[11px] font-semibold mt-1">Accueil</span>
+  </a>
+  <a class="flex flex-col items-center text-gray-400 hover:text-[#012d1d] transition-colors" href="analyse.html">
+    <span class="material-symbols-outlined">query_stats</span>
+    <span class="text-[11px] font-semibold mt-1">Analyser</span>
+  </a>
+  <a class="flex flex-col items-center text-gray-400 hover:text-[#012d1d] transition-colors" href="dashboard.html">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span class="text-[11px] font-semibold mt-1">Tableau</span>
+  </a>
+  <a class="flex flex-col items-center text-gray-400 hover:text-[#012d1d] transition-colors" href="rapport.html">
+    <span class="material-symbols-outlined">layers</span>
+    <span class="text-[11px] font-semibold mt-1">Projets</span>
+  </a>
+  <a class="flex flex-col items-center text-[#012d1d] bg-emerald-50 rounded-xl px-3 py-2 transition-colors" href="profile.html">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">person</span>
+    <span class="text-[11px] font-semibold mt-1">Profil</span>
+  </a>
+</nav>
+
+<div id="toast"></div>
+
+<script src="js/auth-guard.js"></script>
+<script>
+const API_URL = 'https://web-production-11c8c.up.railway.app';
+
+function getToken() {
+  return localStorage.getItem('noukou_token') || sessionStorage.getItem('noukou_token');
+}
+
+function showToast(msg, type = 'error') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type === 'success' ? 'success show' : 'show';
+  setTimeout(() => t.className = t.className.replace(' show', ''), 4000);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    const tabs = ['info', 'agri', 'security'];
+    btn.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+}
+
+function calcCompletion(user) {
+  const fields = ['name', 'phone', 'country', 'city', 'bio', 'photo_url', 'profession', 'surface_ha'];
+  const filled = fields.filter(f => user[f] && String(user[f]).trim() !== '').length;
+  return Math.round((filled / fields.length) * 100);
+}
+
+function populateForm(user) {
+  document.getElementById('f-name').value    = user.name        || '';
+  document.getElementById('f-email').value   = user.email       || '';
+  document.getElementById('f-phone').value   = user.phone       || '';
+  document.getElementById('f-country').value = user.country     || '';
+  document.getElementById('f-city').value    = user.city        || '';
+  document.getElementById('f-bio').value     = user.bio         || '';
+  document.getElementById('f-profession').value = user.profession || '';
+  document.getElementById('f-surface').value = user.surface_ha  || '';
+
+  document.getElementById('display-name').textContent = user.name  || '—';
+  document.getElementById('display-email').textContent = user.email || '';
+  document.getElementById('display-job').textContent   = user.profession || '';
+
+  const initials = (user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('profile-initials').textContent = initials;
+
+  if (user.photo_url) {
+    const src = user.photo_url.startsWith('http') ? user.photo_url : `${API_URL}${user.photo_url}`;
+    const img = document.getElementById('profile-photo');
+    img.src = src;
+    img.classList.remove('hidden');
+    document.getElementById('profile-initials').classList.add('hidden');
+  }
+
+  if (user.created_at) {
+    const d = new Date(user.created_at);
+    document.getElementById('member-since').textContent = `Depuis ${d.toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}`;
+  }
+
+  const pct = calcCompletion(user);
+  document.getElementById('completion-pct').textContent = `${pct}%`;
+  document.getElementById('completion-fill').style.width = `${pct}%`;
+}
+
+async function saveProfile(fields) {
+  const res = await fetch(`${API_URL}/api/profile/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify(fields)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Erreur lors de la sauvegarde.');
+  return data.user;
+}
+
+// ── Info form ──
+document.getElementById('info-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('info-save-btn');
+  btn.innerHTML = '<span class="spinner"></span> Enregistrement...';
+  btn.disabled = true;
+  try {
+    const user = await saveProfile({
+      name:    document.getElementById('f-name').value,
+      phone:   document.getElementById('f-phone').value,
+      country: document.getElementById('f-country').value,
+      city:    document.getElementById('f-city').value,
+      bio:     document.getElementById('f-bio').value,
+    });
+    const storage = localStorage.getItem('noukou_token') ? localStorage : sessionStorage;
+    storage.setItem('noukou_user', JSON.stringify(user));
+    populateForm(user);
+    showToast('Informations mises à jour ✓', 'success');
+  } catch (err) {
+    showToast(err.message);
+  } finally {
+    btn.innerHTML = '<span class="btn-text">Enregistrer les informations</span>';
+    btn.disabled = false;
+  }
+});
+
+// ── Agri form ──
+document.getElementById('agri-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('agri-save-btn');
+  btn.innerHTML = '<span class="spinner"></span> Enregistrement...';
+  btn.disabled = true;
+  try {
+    const user = await saveProfile({
+      profession: document.getElementById('f-profession').value,
+      surface_ha: document.getElementById('f-surface').value,
+    });
+    const storage = localStorage.getItem('noukou_token') ? localStorage : sessionStorage;
+    storage.setItem('noukou_user', JSON.stringify(user));
+    populateForm(user);
+    showToast('Profil agricole mis à jour ✓', 'success');
+  } catch (err) {
+    showToast(err.message);
+  } finally {
+    btn.innerHTML = '<span class="btn-text">Enregistrer le profil agricole</span>';
+    btn.disabled = false;
+  }
+});
+
+// ── Photo upload ──
+document.getElementById('photo-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Image trop grande (max 5 Mo).'); return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    showToast('Téléchargement en cours...', 'success');
+    const res = await fetch(`${API_URL}/api/profile/photo`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${getToken()}` },
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Erreur upload.');
+
+    const storage = localStorage.getItem('noukou_token') ? localStorage : sessionStorage;
+    storage.setItem('noukou_user', JSON.stringify(data.user));
+    populateForm(data.user);
+    showToast('Photo de profil mise à jour ✓', 'success');
+  } catch (err) {
+    showToast(err.message);
+  }
+});
+
+// ── Init ──
+requireAuth((user) => {
+  populateForm(user);
+});
+</script>
+</body>
+</html>
