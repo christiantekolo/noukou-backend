@@ -674,8 +674,14 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Analyse échouée');
 
-    // Sauvegarder l'analyse réelle dans le localStorage pour le Dashboard
-    const portfolio = JSON.parse(localStorage.getItem('noukou_portfolio') || '[]');
+    // Sauvegarder l'analyse dans le localStorage — clé isolée par utilisateur
+    let _email = 'default';
+    try {
+      const _u = JSON.parse(sessionStorage.getItem('noukou_user') || localStorage.getItem('noukou_user') || '{}');
+      if (_u.email) _email = _u.email;
+    } catch(e) {}
+    const _portfolioKey = 'noukou_portfolio_' + _email;
+    const portfolio = JSON.parse(localStorage.getItem(_portfolioKey) || '[]');
     const entry = {
       id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
       date: new Date().toISOString(),
@@ -686,7 +692,7 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
       sol: data.sol || {}
     };
     portfolio.unshift(entry);
-    localStorage.setItem('noukou_portfolio', JSON.stringify(portfolio));
+    localStorage.setItem(_portfolioKey, JSON.stringify(portfolio));
 
     // Délai artificiel pour forcer l'animation à jouer au moins 10 secondes (effet "IA au travail")
     const elapsedTime = Date.now() - startTime;

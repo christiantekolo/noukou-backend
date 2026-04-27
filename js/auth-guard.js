@@ -18,12 +18,40 @@ function getNoukouUser() {
 
 // ── Déconnexion ────────────────────────────────────────────────
 function logout() {
+  // Nettoyer l'ancienne clé globale de portfolio (source du bug empty-state)
+  localStorage.removeItem('noukou_portfolio');
   localStorage.removeItem('noukou_token');
   localStorage.removeItem('noukou_user');
   sessionStorage.removeItem('noukou_token');
   sessionStorage.removeItem('noukou_user');
   window.location.replace('login.html');
 }
+
+// ── Migration : ancienne clé globale → clé par utilisateur ────
+// Exécuté une seule fois au chargement si nécessaire
+(function migrateOldPortfolio() {
+  const oldData = localStorage.getItem('noukou_portfolio');
+  if (!oldData || oldData === '[]') {
+    // Rien à migrer — supprimer la clé vide résiduelle
+    localStorage.removeItem('noukou_portfolio');
+    return;
+  }
+  // Trouver l'email de l'utilisateur actuel
+  let email = null;
+  try {
+    const u = JSON.parse(sessionStorage.getItem('noukou_user') || localStorage.getItem('noukou_user') || '{}');
+    if (u.email) email = u.email;
+  } catch(e) {}
+  if (email) {
+    const newKey = 'noukou_portfolio_' + email;
+    // Ne migrer que si la clé utilisateur n'existe pas encore
+    if (!localStorage.getItem(newKey) || localStorage.getItem(newKey) === '[]') {
+      localStorage.setItem(newKey, oldData);
+    }
+    // Supprimer l'ancienne clé globale définitivement
+    localStorage.removeItem('noukou_portfolio');
+  }
+})();
 
 // ── Redirection immédiate si pas de token ──────────────────────
 // (exécuté SYNCHRONEMENT avant tout rendu de la page)

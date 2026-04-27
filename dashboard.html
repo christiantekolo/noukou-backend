@@ -272,12 +272,35 @@
     <span class="text-[11px] font-semibold mt-1">Profil</span>
   </a>
 </nav>
-<script src="js/mock-data.js"></script>
+<script src="js/mock-data.js?v=20260427"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const portfolio = getPortfolio();
-    const user = getNoukouUser ? getNoukouUser() : null;
-    const userName = (user && user.name) ? user.name.split(' ')[0] : 'Agriculteur';
+    // ── Identifier l'utilisateur CONNECTÉ (pas un résidu de cache) ──
+    // On cherche dans sessionStorage EN PREMIER (inscription récente)
+    // puis dans localStorage (connexion avec "Se souvenir de moi")
+    let currentUser = null;
+    const sessionUser = sessionStorage.getItem('noukou_user');
+    const localUser = localStorage.getItem('noukou_user');
+    try {
+        if (sessionUser) currentUser = JSON.parse(sessionUser);
+        else if (localUser) currentUser = JSON.parse(localUser);
+    } catch(e) {}
+
+    const userName = (currentUser && currentUser.name) ? currentUser.name.split(' ')[0] : 'Agriculteur';
+    const userEmail = (currentUser && currentUser.email) ? currentUser.email : null;
+
+    // ── Charger le portfolio SPÉCIFIQUE à cet utilisateur ──
+    // Clé isolée par email pour que chaque compte ait son propre historique
+    let portfolio = [];
+    if (userEmail) {
+        const userKey = 'noukou_portfolio_' + userEmail;
+        try { portfolio = JSON.parse(localStorage.getItem(userKey) || '[]'); } catch(e) {}
+    }
+    // Fallback : ancienne clé globale SEULEMENT si l'utilisateur a un portfolio dedans
+    // et pas encore de clé isolée (migration)
+    if (portfolio.length === 0 && !userEmail) {
+        try { portfolio = JSON.parse(localStorage.getItem('noukou_portfolio') || '[]'); } catch(e) {}
+    }
 
     if (portfolio.length > 0) {
         const latest = portfolio[0];
