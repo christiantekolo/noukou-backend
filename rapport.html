@@ -315,6 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('report-soil-bar').style.width = nPct + '%';
         
         document.getElementById('report-temp').textContent = latest.climat.temp_moyenne.toFixed(1) + '°C';
+    } else {
+        document.getElementById('report-title').textContent = "Aucun rapport";
+        document.getElementById('report-zone').textContent = "Veuillez faire une analyse.";
+        document.getElementById('report-score').textContent = "-";
+        document.getElementById('report-top-crop').textContent = "-";
+        document.getElementById('report-roi').textContent = "-";
     }
 
     // PDF Download

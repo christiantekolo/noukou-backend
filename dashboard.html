@@ -304,6 +304,11 @@ document.addEventListener('DOMContentLoaded', () => {
         cropsDiv.innerHTML = recs.map((r, i) =>
             `<span class="${chipColors[Math.min(i, 2)]} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">${r.culture_fr}</span>`
         ).join('');
+    } else {
+        document.getElementById('kpi-roi').textContent = '0%';
+        document.getElementById('kpi-risk').textContent = '-';
+        document.getElementById('kpi-risk-bar').style.width = '0%';
+        document.getElementById('kpi-crops').innerHTML = '<span class="text-xs text-outline">Aucune recommandation</span>';
     }
 
     // ── Leaflet Map with markers ──
@@ -349,6 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
         }).join('');
+    } else {
+        listDiv.innerHTML = '<div class="text-center py-8 text-outline">Aucune analyse récente. Allez sur la page Analyser pour commencer !</div>';
     }
 });
 </script>

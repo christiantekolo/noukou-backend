@@ -495,6 +495,20 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Analyse échouée');
 
+    // Sauvegarder l'analyse réelle dans le localStorage pour le Dashboard
+    const portfolio = JSON.parse(localStorage.getItem('noukou_portfolio') || '[]');
+    const entry = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+      date: new Date().toISOString(),
+      zone: data.zone || 'Zone analysée',
+      coordonnees: { lat, lon: lng },
+      recommandations: data.recommandations || [],
+      climat: data.climat || {},
+      sol: data.sol || {}
+    };
+    portfolio.unshift(entry);
+    localStorage.setItem('noukou_portfolio', JSON.stringify(portfolio));
+
     loader.classList.add('hidden');
     document.getElementById('results-container').classList.remove('hidden');
     renderResults(data);
