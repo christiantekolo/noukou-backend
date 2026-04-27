@@ -80,6 +80,9 @@
         .font-headline { font-family: 'Manrope', sans-serif; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); }
+        #loader-fact-text { transition: opacity 0.3s ease; }
+        @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(1,45,29,0.2)} 50%{box-shadow:0 0 0 12px rgba(1,45,29,0)} }
+        .loader-step { transition: background 0.4s ease; }
     </style>
 <style>
     body {
@@ -150,7 +153,67 @@
 </button>
 </div>
 </div>
-<div id="loader" class="hidden lg:col-span-7 flex flex-col items-center justify-center p-12 bg-surface-container-lowest rounded-xl shadow-sm"><span class="material-symbols-outlined animate-spin text-5xl text-primary mb-4">sync</span><p class="text-primary font-bold">Analyse IA en cours...</p></div>
+<div id="loader" class="hidden lg:col-span-7 flex flex-col items-center justify-center p-8 md:p-12 bg-surface-container-lowest rounded-xl shadow-sm min-h-[400px]">
+  <div class="w-full max-w-md space-y-8">
+    <!-- Percentage circle -->
+    <div class="flex flex-col items-center">
+      <div class="relative w-28 h-28">
+        <svg class="w-28 h-28 transform -rotate-90" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#e7e8e9" stroke-width="8"/>
+          <circle id="loader-circle" cx="60" cy="60" r="52" fill="none" stroke="#012d1d" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" style="transition: stroke-dashoffset 0.8s ease;"/>
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span id="loader-pct" class="text-2xl font-extrabold font-headline text-primary">0%</span>
+        </div>
+      </div>
+      <p id="loader-title" class="text-primary font-bold text-lg mt-4">Lancement de l'analyse...</p>
+      <p id="loader-sub" class="text-on-surface-variant text-sm mt-1">Cela prend environ 15 à 30 secondes</p>
+    </div>
+    <!-- Steps -->
+    <div class="space-y-3" id="loader-steps">
+      <div class="loader-step flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50" data-step="0">
+        <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-lg text-outline">my_location</span>
+        </div>
+        <div class="flex-1"><p class="text-sm font-semibold text-on-surface-variant">Localisation GPS</p><p class="text-xs text-outline">Détection de la zone agro-écologique</p></div>
+        <span class="step-icon material-symbols-outlined text-outline text-lg">hourglass_empty</span>
+      </div>
+      <div class="loader-step flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50" data-step="1">
+        <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-lg text-outline">cloud</span>
+        </div>
+        <div class="flex-1"><p class="text-sm font-semibold text-on-surface-variant">Données climatiques</p><p class="text-xs text-outline">Interrogation NASA POWER API</p></div>
+        <span class="step-icon material-symbols-outlined text-outline text-lg">hourglass_empty</span>
+      </div>
+      <div class="loader-step flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50" data-step="2">
+        <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-lg text-outline">science</span>
+        </div>
+        <div class="flex-1"><p class="text-sm font-semibold text-on-surface-variant">Analyse du sol</p><p class="text-xs text-outline">Récupération iSDA Africa (pH, argile, CEC)</p></div>
+        <span class="step-icon material-symbols-outlined text-outline text-lg">hourglass_empty</span>
+      </div>
+      <div class="loader-step flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50" data-step="3">
+        <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-lg text-outline">psychology</span>
+        </div>
+        <div class="flex-1"><p class="text-sm font-semibold text-on-surface-variant">Modèle ML prédictif</p><p class="text-xs text-outline">Random Forest + Ridge — prédiction rendements</p></div>
+        <span class="step-icon material-symbols-outlined text-outline text-lg">hourglass_empty</span>
+      </div>
+      <div class="loader-step flex items-center gap-3 p-3 rounded-xl bg-surface-container-low/50" data-step="4">
+        <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-lg text-outline">eco</span>
+        </div>
+        <div class="flex-1"><p class="text-sm font-semibold text-on-surface-variant">Sélection des variétés</p><p class="text-xs text-outline">Catalogue MAHVDR 2024 — 109 variétés</p></div>
+        <span class="step-icon material-symbols-outlined text-outline text-lg">hourglass_empty</span>
+      </div>
+    </div>
+    <!-- Fun fact -->
+    <div id="loader-fact" class="text-center p-4 bg-primary-fixed/20 rounded-xl">
+      <p class="text-xs text-primary font-medium">💡 Le saviez-vous ?</p>
+      <p class="text-xs text-on-surface-variant mt-1" id="loader-fact-text">L'IA NOUKOU analyse 19 cultures et 109 variétés pour chaque parcelle.</p>
+    </div>
+  </div>
+</div>
 <div id="results-container" class="lg:col-span-7 hidden">
 <!-- AI Results Zone (Bento Grid) -->
 <div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -472,6 +535,121 @@ function renderResults(data) {
   document.getElementById('roi-value').textContent = '+' + Math.round((bestRatio - 0.3) * 200) + '% ROI';
 }
 
+// ══════════════════════════════════════════════
+// LOADER — Animation de progression par étapes
+// ══════════════════════════════════════════════
+const LOADER_STEPS = [
+  { pct: 10, title: "Détection de la zone...", delay: 1500 },
+  { pct: 30, title: "Récupération du climat...", delay: 4000 },
+  { pct: 50, title: "Analyse du sol en cours...", delay: 5000 },
+  { pct: 75, title: "Modèle ML en calcul...", delay: 6000 },
+  { pct: 90, title: "Sélection des variétés...", delay: 4000 },
+];
+const LOADER_FACTS = [
+  "L'IA NOUKOU analyse 19 cultures et 109 variétés pour chaque parcelle.",
+  "Les données sol proviennent d'iSDA Africa, couvrant tout le continent.",
+  "Le modèle utilise 27 variables agronomiques pour ses prédictions.",
+  "Les données climatiques viennent de la NASA (30 ans d'historique).",
+  "NOUKOU utilise un modèle hybride Random Forest + Ridge Regression.",
+  "Le catalogue de variétés est celui du MAHVDR Togo, édition 2024.",
+  "Chaque analyse évalue le pH, l'argile, le carbone organique et la CEC du sol.",
+  "Le score d'adaptation combine pluviométrie, pH, zone et texture du sol.",
+];
+let loaderInterval = null;
+let loaderFactInterval = null;
+
+function startLoaderAnimation() {
+  const circle = document.getElementById('loader-circle');
+  const pctEl = document.getElementById('loader-pct');
+  const titleEl = document.getElementById('loader-title');
+  const steps = document.querySelectorAll('.loader-step');
+  const factText = document.getElementById('loader-fact-text');
+  const totalDash = 326.73;
+  let currentStep = -1;
+
+  // Reset all steps
+  steps.forEach(s => {
+    s.style.background = '';
+    s.querySelector('.step-icon').textContent = 'hourglass_empty';
+    s.querySelector('.step-icon').style.color = '';
+  });
+  circle.style.strokeDashoffset = totalDash;
+  pctEl.textContent = '0%';
+
+  // Animate steps sequentially
+  function activateStep(idx) {
+    if (idx >= LOADER_STEPS.length) return;
+    currentStep = idx;
+    const step = LOADER_STEPS[idx];
+
+    // Update circle
+    const offset = totalDash - (totalDash * step.pct / 100);
+    circle.style.strokeDashoffset = offset;
+    pctEl.textContent = step.pct + '%';
+    titleEl.textContent = step.title;
+
+    // Mark previous steps as done
+    for (let i = 0; i < idx; i++) {
+      const el = steps[i];
+      el.style.background = 'rgba(193, 236, 212, 0.3)';
+      el.querySelector('.step-icon').textContent = 'check_circle';
+      el.querySelector('.step-icon').style.color = '#2d6a4f';
+    }
+
+    // Current step active
+    const el = steps[idx];
+    el.style.background = 'rgba(1, 45, 29, 0.08)';
+    el.querySelector('.step-icon').textContent = 'sync';
+    el.querySelector('.step-icon').style.color = '#012d1d';
+    el.querySelector('.step-icon').classList.add('animate-spin');
+  }
+
+  // Start step sequence
+  activateStep(0);
+  let stepIdx = 1;
+  loaderInterval = setInterval(() => {
+    if (stepIdx < LOADER_STEPS.length) {
+      // Remove spin from previous
+      if (stepIdx > 0) steps[stepIdx-1].querySelector('.step-icon').classList.remove('animate-spin');
+      activateStep(stepIdx);
+      stepIdx++;
+    }
+  }, 5000);
+
+  // Fun facts rotation
+  let factIdx = Math.floor(Math.random() * LOADER_FACTS.length);
+  factText.textContent = LOADER_FACTS[factIdx];
+  loaderFactInterval = setInterval(() => {
+    factIdx = (factIdx + 1) % LOADER_FACTS.length;
+    factText.style.opacity = '0';
+    setTimeout(() => {
+      factText.textContent = LOADER_FACTS[factIdx];
+      factText.style.opacity = '1';
+    }, 300);
+  }, 6000);
+}
+
+function stopLoaderAnimation(success) {
+  clearInterval(loaderInterval);
+  clearInterval(loaderFactInterval);
+  const circle = document.getElementById('loader-circle');
+  const pctEl = document.getElementById('loader-pct');
+  const titleEl = document.getElementById('loader-title');
+  const steps = document.querySelectorAll('.loader-step');
+
+  if (success) {
+    circle.style.strokeDashoffset = '0';
+    pctEl.textContent = '100%';
+    titleEl.textContent = 'Analyse terminée !';
+    steps.forEach(s => {
+      s.style.background = 'rgba(193, 236, 212, 0.3)';
+      s.querySelector('.step-icon').textContent = 'check_circle';
+      s.querySelector('.step-icon').style.color = '#2d6a4f';
+      s.querySelector('.step-icon').classList.remove('animate-spin');
+    });
+  }
+}
+
 document.getElementById('launch-btn').addEventListener('click', async () => {
   const lat = parseFloat(document.getElementById('latitude').value);
   const lng = parseFloat(document.getElementById('longitude').value);
@@ -480,6 +658,7 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
   document.getElementById('results-container').classList.add('hidden');
   const loader = document.getElementById('loader');
   loader.classList.remove('hidden', 'lg:hidden');
+  startLoaderAnimation();
 
   try {
     const response = await fetch(`${API_URL}/api/analyse`, {
@@ -508,11 +687,15 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
     portfolio.unshift(entry);
     localStorage.setItem('noukou_portfolio', JSON.stringify(portfolio));
 
-    loader.classList.add('hidden');
-    document.getElementById('results-container').classList.remove('hidden');
-    renderResults(data);
+    stopLoaderAnimation(true);
+    setTimeout(() => {
+      loader.classList.add('hidden');
+      document.getElementById('results-container').classList.remove('hidden');
+      renderResults(data);
+    }, 800);
 
   } catch (error) {
+    stopLoaderAnimation(false);
     loader.classList.add('hidden');
     document.getElementById('results-container').classList.remove('hidden');
     document.getElementById('crops-grid').innerHTML = `
