@@ -156,14 +156,45 @@ class AnalyseRequest(BaseModel):
 
     @validator('lat')
     def validate_lat(cls, v):
-        if not (6.0 <= v <= 11.2):
-            raise ValueError("Latitude hors des frontières du Togo (6.0 à 11.2)")
+        if not (6.08 <= v <= 11.14):
+            raise ValueError("Latitude hors des frontières du Togo (6.08 à 11.14)")
         return v
 
     @validator('lon')
     def validate_lon(cls, v):
-        if not (0.0 <= v <= 1.9):
-            raise ValueError("Longitude hors des frontières du Togo (0.0 à 1.9)")
+        if not (-0.15 <= v <= 1.81):
+            raise ValueError("Longitude hors des frontières du Togo (-0.15 à 1.81)")
+        return v
+
+    @validator('lon')
+    def validate_inside_togo(cls, v, values):
+        """Vérifie que le point est sur terre au Togo, pas dans la mer."""
+        lat = values.get('lat')
+        if lat is None:
+            return v
+        # Polygone simplifié des frontières terrestres du Togo
+        # La côte togolaise va de (6.10, 1.19) à (6.22, 1.78)
+        # Points sous cette ligne = mer (golfe de Guinée)
+        if lat < 6.12:
+            raise ValueError(
+                "Ces coordonnées sont dans le Golfe de Guinée (mer). "
+                "Veuillez sélectionner un point sur terre."
+            )
+        # Zone côtière : la côte est environ à lat 6.12-6.25
+        # Plus on va au sud, plus la longitude doit être restreinte
+        if lat < 6.25:
+            # Côte togolaise : lon entre ~1.10 (frontière Ghana) et ~1.70 (frontière Bénin)
+            if v < 1.05 or v > 1.75:
+                raise ValueError(
+                    "Ces coordonnées sont hors des frontières du Togo. "
+                    "Vérifiez vos coordonnées GPS."
+                )
+        # Partie étroite au sud : le Togo fait ~50km de large
+        if lat < 6.5:
+            if v < 0.95 or v > 1.78:
+                raise ValueError(
+                    "Ces coordonnées sont hors du territoire togolais."
+                )
         return v
 
 class RegisterRequest(BaseModel):

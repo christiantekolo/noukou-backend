@@ -399,11 +399,30 @@ const DEFAULT_IMG = "https://tse1.mm.bing.net/th?q=champ+agricole+afrique&w=600&
 
 let map, marker;
 
+function isInsideTogo(lat, lng) {
+  // Vérification rapide : le point est-il sur terre au Togo ?
+  if (lat < 6.12 || lat > 11.14) return false;
+  if (lng < -0.15 || lng > 1.81) return false;
+  // Zone côtière sud : le Togo est très étroit
+  if (lat < 6.25 && (lng < 1.05 || lng > 1.75)) return false;
+  if (lat < 6.5 && (lng < 0.95 || lng > 1.78)) return false;
+  return true;
+}
+
 function initMap() {
   if (map) return;
   map = L.map('map').setView([8.6195, 0.8248], 7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   map.on('click', e => {
+    if (!isInsideTogo(e.latlng.lat, e.latlng.lng)) {
+      // Afficher un avertissement visuel
+      const popup = L.popup()
+        .setLatLng(e.latlng)
+        .setContent('<div style="text-align:center;padding:4px;"><b>⚠️ Hors du Togo</b><br><span style="font-size:0.8rem;">Veuillez sélectionner un point<br>sur le territoire togolais.</span></div>')
+        .openOn(map);
+      setTimeout(() => map.closePopup(popup), 3000);
+      return;
+    }
     document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
     document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
     placeMarker(e.latlng.lat, e.latlng.lng);
