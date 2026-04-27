@@ -335,27 +335,9 @@ function getAnalysisById(id) {
 }
 
 // ============================================================
-// AUTH MOCK (localStorage)
+// AUTH — handled by auth-guard.js (do NOT redefine logout here)
 // ============================================================
-function mockLogin(email, password) {
-  if (email && password.length >= 4) {
-    const user = { email, prenom: email.split('@')[0], loginTime: Date.now() };
-    localStorage.setItem('noukou_user', JSON.stringify(user));
-    return user;
-  }
-  return null;
-}
+// Les fonctions mockLogin, mockRegister, getCurrentUser et logout
+// sont désormais gérées par auth-guard.js qui utilise le vrai JWT.
+// Ne pas les redéfinir ici pour éviter les conflits.
 
-function mockRegister(email, password, prenom) {
-  const user = { email, prenom: prenom || email.split('@')[0], loginTime: Date.now() };
-  localStorage.setItem('noukou_user', JSON.stringify(user));
-  return user;
-}
-
-function getCurrentUser() {
-  return JSON.parse(localStorage.getItem('noukou_user') || 'null');
-}
-
-function logout() {
-  localStorage.removeItem('noukou_user');
-}
