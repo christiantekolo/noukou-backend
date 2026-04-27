@@ -1,56 +1,53 @@
 /**
  * NOUKOU — Guard d'authentification
- * À inclure sur TOUTES les pages protégées (dashboard, analyse, rapport).
- * Si l'utilisateur n'a pas de token valide, il est redirigé vers login.html.
+ * Inclure sur TOUTES les pages protégées (dashboard, analyse, rapport, profile).
+ * Si l'utilisateur n'a pas de token, il est redirigé immédiatement vers login.html.
  */
 
 const API_URL = 'https://web-production-11c8c.up.railway.app';
 
-/**
- * Retourne le token stocké (localStorage ou sessionStorage) ou null.
- */
-function getNoukoуToken() {
+// ── Cache tokens ──────────────────────────────────────────────
+function getNoukouToken() {
   return localStorage.getItem('noukou_token') || sessionStorage.getItem('noukou_token') || null;
 }
 
-/**
- * Retourne l'objet user sérialisé ou null.
- */
-function getNoukoуUser() {
+function getNoukouUser() {
   const raw = localStorage.getItem('noukou_user') || sessionStorage.getItem('noukou_user');
   try { return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 
-/**
- * Déconnecte l'utilisateur et redirige vers login.
- */
+// ── Déconnexion ────────────────────────────────────────────────
 function logout() {
   localStorage.removeItem('noukou_token');
   localStorage.removeItem('noukou_user');
   sessionStorage.removeItem('noukou_token');
   sessionStorage.removeItem('noukou_user');
-  window.location.href = 'login.html';
+  window.location.replace('login.html');
 }
 
-/**
- * Vérifie l'auth ET rafraîchit le profil depuis l'API.
- * Redirige vers login.html si non authentifié.
- * @param {Function} [onReady] callback(user) appelé après vérification
- */
-async function requireAuth(onReady) {
-  const token = getNoukoуToken();
+// ── Redirection immédiate si pas de token ──────────────────────
+// (exécuté SYNCHRONEMENT avant tout rendu de la page)
+(function immediateGuard() {
+  const token = getNoukouToken();
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
+  }
+})();
+
+// ── Vérification complète + injection UI ──────────────────────
+async function requireAuth(onReady) {
+  const token = getNoukouToken();
+  if (!token) {
+    window.location.replace('login.html');
     return;
   }
 
   try {
     const res = await fetch(`${API_URL}/api/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 'Authorization': 'Bearer ' + token }
     });
 
     if (!res.ok) {
-      // Token expiré ou invalide
       logout();
       return;
     }
@@ -62,14 +59,13 @@ async function requireAuth(onReady) {
     const storage = localStorage.getItem('noukou_token') ? localStorage : sessionStorage;
     storage.setItem('noukou_user', JSON.stringify(user));
 
-    // Injecter le nom et la photo dans l'UI si présents
     injectUserUI(user);
 
     if (typeof onReady === 'function') onReady(user);
 
   } catch (err) {
-    // Erreur réseau : on garde le cache local sans bloquer
-    const cachedUser = getNoukoуUser();
+    // Erreur réseau — utiliser le cache local plutôt que déconnecter
+    const cachedUser = getNoukouUser();
     if (cachedUser) {
       injectUserUI(cachedUser);
       if (typeof onReady === 'function') onReady(cachedUser);
@@ -79,33 +75,28 @@ async function requireAuth(onReady) {
   }
 }
 
-/**
- * Injecte le nom et la photo de l'utilisateur dans les éléments
- * portant les data-attributes data-user-name et data-user-avatar.
- */
+// ── Injection du nom/avatar dans l'UI ─────────────────────────
 function injectUserUI(user) {
   if (!user) return;
 
-  // Nom d'affichage
   document.querySelectorAll('[data-user-name]').forEach(el => {
     el.textContent = user.name || user.email || 'Mon compte';
   });
 
-  // Initiales dans les avatars texte
   const initials = (user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   document.querySelectorAll('[data-user-initials]').forEach(el => {
     el.textContent = initials;
   });
 
-  // Photo de profil
   if (user.photo_url) {
-    const photoSrc = user.photo_url.startsWith('http')
+    const src = user.photo_url.startsWith('http')
       ? user.photo_url
-      : `${API_URL}${user.photo_url}`;
+      : API_URL + user.photo_url;
     document.querySelectorAll('[data-user-avatar]').forEach(el => {
-      el.src = photoSrc;
+      el.src = src;
       el.classList.remove('hidden');
-      el.nextElementSibling?.classList.add('hidden'); // cache l'avatar initiales
+      const sib = el.nextElementSibling;
+      if (sib) sib.classList.add('hidden');
     });
   }
 }
