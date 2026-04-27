@@ -304,28 +304,43 @@ function fetchRecommendation(lat, lon) {
 }
 
 // ============================================================
-// GESTION DU PORTFOLIO (localStorage)
+// GESTION DU PORTFOLIO (localStorage avec isolation par utilisateur)
 // ============================================================
+function _getStorageKey() {
+  const userStr = localStorage.getItem('noukou_user') || sessionStorage.getItem('noukou_user');
+  let email = 'default';
+  try {
+    if (userStr) {
+      const u = JSON.parse(userStr);
+      if (u.email) email = u.email;
+    }
+  } catch(e) {}
+  return 'noukou_portfolio_' + email;
+}
+
 function saveAnalysis(analysisData) {
-  const portfolio = JSON.parse(localStorage.getItem('noukou_portfolio') || '[]');
+  const key = _getStorageKey();
+  const portfolio = JSON.parse(localStorage.getItem(key) || '[]');
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
     date: new Date().toISOString(),
     ...analysisData
   };
   portfolio.unshift(entry);
-  localStorage.setItem('noukou_portfolio', JSON.stringify(portfolio));
+  localStorage.setItem(key, JSON.stringify(portfolio));
   return entry;
 }
 
 function getPortfolio() {
-  return JSON.parse(localStorage.getItem('noukou_portfolio') || '[]');
+  const key = _getStorageKey();
+  return JSON.parse(localStorage.getItem(key) || '[]');
 }
 
 function deleteAnalysis(id) {
+  const key = _getStorageKey();
   let portfolio = getPortfolio();
   portfolio = portfolio.filter(a => a.id !== id);
-  localStorage.setItem('noukou_portfolio', JSON.stringify(portfolio));
+  localStorage.setItem(key, JSON.stringify(portfolio));
   return portfolio;
 }
 
