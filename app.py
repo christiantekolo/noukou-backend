@@ -389,10 +389,61 @@ def analyse_parcelle(
             "sol": {
                 "soil_ph":  sol.get("soil_ph", 0),
                 "clay_pct": sol.get("clay_pct", 0),
-                "soc_gkg":  sol.get("soc_gkg", 0)
+                "soc_gkg":  sol.get("soc_gkg", 0),
+                "_source":  sol.get("_source", "inconnu"),
+                "_note":    sol.get("_note", "")
             },
             "recommandations": top3
         }
     except Exception as e:
         traceback.print_exc()
         return {"success": False, "error": f"Erreur interne lors de la prédiction: {str(e)}"}
+
+
+@app.get("/api/test-isda", summary="Tester la connexion iSDA Africa")
+def test_isda():
+    """
+    Endpoint de diagnostic — vérifie que les credentials iSDA sont
+    configurés et que l'API répond correctement.
+    Teste avec un point GPS au centre du Togo (8.6, 1.1).
+    """
+    from pipeline_gps import (
+        get_isda_token, get_soil_safe, ISDA_USERNAME, ISDA_PASSWORD
+    )
+
+    result = {
+        "credentials_configured": bool(ISDA_USERNAME and ISDA_PASSWORD),
+        "isda_username": ISDA_USERNAME[:5] + "***" if ISDA_USERNAME else "(vide)",
+    }
+
+    # Test 1 : Obtenir un token
+    try:
+        token = get_isda_token()
+        result["token_ok"] = True
+        result["token_preview"] = token[:20] + "..." if token else None
+    except Exception as e:
+        result["token_ok"] = False
+        result["token_error"] = str(e)
+        return result
+
+    # Test 2 : Récupérer les données sol pour un point test
+    test_lat, test_lon = 8.6, 1.1  # Centre du Togo
+    try:
+        soil = get_soil_safe(test_lat, test_lon, token)
+        result["soil_test"] = {
+            "lat": test_lat,
+            "lon": test_lon,
+            "source": soil.get("_source", "?"),
+            "soil_ph": soil.get("soil_ph"),
+            "clay_pct": soil.get("clay_pct"),
+            "soc_gkg": soil.get("soc_gkg"),
+            "cec_cmol_kg": soil.get("cec_cmol_kg"),
+            "note": soil.get("_note", "")
+        }
+        result["isda_working"] = "isda_africa" in soil.get("_source", "")
+    except Exception as e:
+        result["soil_test"] = {"error": str(e)}
+        result["isda_working"] = False
+
+    return result
+
