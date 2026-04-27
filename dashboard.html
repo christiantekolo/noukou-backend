@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else {
         // ── NOUVEAU UTILISATEUR — bel état d'accueil ──
-        document.getElementById('kpi-roi').innerHTML = '<span style="font-size:1.8rem">👋</span>';
+        document.getElementById('kpi-roi').innerHTML = '<span style="font-size:1.8rem">🌱</span>';
         const roiDesc = document.getElementById('kpi-roi').nextElementSibling;
         if (roiDesc) roiDesc.textContent = 'Bienvenue ' + userName + ' !';
 
@@ -333,18 +333,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('kpi-crops').innerHTML =
             '<div class="flex flex-col items-center gap-2 w-full py-2">' +
-            '<span class="material-symbols-outlined text-3xl text-outline/40">spa</span>' +
-            '<span class="text-xs text-outline text-center">Vos cultures recommandées apparaîtront ici après votre première analyse</span>' +
+            '<span class="material-symbols-outlined text-3xl text-outline/40">auto_awesome</span>' +
+            '<span class="text-xs text-outline text-center">Découvrez quelles cultures maximiseront vos profits sur votre terrain.</span>' +
             '</div>';
 
         document.getElementById('analyses-list').innerHTML =
             '<div class="flex flex-col items-center justify-center py-10 text-center space-y-4">' +
             '<div class="w-20 h-20 rounded-full bg-primary-fixed/30 flex items-center justify-center">' +
-            '<span class="material-symbols-outlined text-4xl text-primary">query_stats</span></div>' +
-            '<div><h4 class="font-headline font-bold text-lg text-primary">Aucune analyse pour le moment</h4>' +
-            '<p class="text-sm text-outline mt-1 max-w-xs mx-auto">Sélectionnez une parcelle GPS et lancez votre première analyse IA pour découvrir les meilleures cultures adaptées à votre terrain.</p></div>' +
-            '<a href="analyse.html" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95 shadow-lg">' +
-            '<span class="material-symbols-outlined text-base">bolt</span> Lancer ma première analyse</a></div>';
+            '<span class="material-symbols-outlined text-4xl text-primary">rocket_launch</span></div>' +
+            '<div><h4 class="font-headline font-bold text-lg text-primary">Prêt à investir intelligemment ?</h4>' +
+            '<p class="text-sm text-outline mt-2 max-w-sm mx-auto leading-relaxed">Notre IA analyse les données climatiques et géologiques de votre parcelle GPS pour vous recommander les cultures les plus rentables et les moins risquées.</p></div>' +
+            '<a href="analyse.html" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3.5 mt-4 rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95 shadow-lg">' +
+            '<span class="material-symbols-outlined text-base">explore</span> Analyser ma première parcelle</a></div>';
     }
 
     // ── Carte Leaflet (toujours visible) ──
