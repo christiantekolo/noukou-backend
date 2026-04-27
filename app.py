@@ -403,11 +403,11 @@ def analyse_parcelle(
         return {"success": False, "error": "Les modèles IA ne sont pas correctement chargés sur le serveur."}
 
     try:
-        top3, zone, clim, sol = recommend_for_gps(
+        results, zone, clim, sol = recommend_for_gps(
             lat=request.lat,
             lon=request.lon,
             token=None,
-            top_n=3
+            top_n=8  # Top 3 principal + jusqu'à 5 alternatives
         )
         return {
             "success": True,
@@ -424,7 +424,7 @@ def analyse_parcelle(
                 "_source":  sol.get("_source", "inconnu"),
                 "_note":    sol.get("_note", "")
             },
-            "recommandations": top3
+            "recommandations": results
         }
     except Exception as e:
         traceback.print_exc()

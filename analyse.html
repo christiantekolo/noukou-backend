@@ -485,36 +485,126 @@ function renderResults(data) {
   // Echelle temp: max 50°C
   if (tempBar) tempBar.style.width = Math.min(100, Math.max(0, (temp / 50) * 100)) + '%';
 
-  // ── Cultures + Variétés ──
+  // ── Séparer Top 3 et alternatives ──
+  const top3 = data.recommandations.slice(0, 3);
+  const alternatives = data.recommandations.slice(3);
+
+  // ── Cultures principales (Top 3 — cartes complètes) ──
   const grid = document.getElementById('crops-grid');
   grid.innerHTML = '';
-  data.recommandations.forEach((rec, i) => {
-    const key = (rec.culture_fr || '').toLowerCase();
-    const img = CROP_IMAGES[key] || DEFAULT_IMG;
-    const icon = CULTURE_ICONS[key] || '🌱';
-    const color = getScoreColor(rec.score_final);
-    const niveauBadge = rec.niveau === 'Optimal'
-      ? '<span style="background:#c1ecd4;color:#1b4332;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Optimal</span>'
-      : rec.niveau === 'Suboptimal'
-        ? '<span style="background:#ffdcbd;color:#7d562d;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Suboptimal</span>'
-        : '<span style="background:#ffdad8;color:#55000b;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Risqué</span>';
+  top3.forEach((rec, i) => {
+    grid.appendChild(buildCropCard(rec, i, false));
+  });
 
-    const varietes = (rec.varietes_top3 || []);
-    const varietesHTML = varietes.map(v => `
-      <div style="background:#f3f4f5;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;border-left:3px solid #012d1d;">
-        <div style="font-weight:700;font-size:0.9rem;color:#012d1d;">
-          ${v.variete}
-          ${v.inscrit_2024 ? '<span style="background:#c1ecd4;color:#1b4332;padding:1px 6px;border-radius:99px;font-size:0.65rem;font-weight:700;margin-left:4px;">✅ 2024</span>' : ''}
-        </div>
-        <div style="display:flex;gap:1rem;margin-top:0.3rem;font-size:0.78rem;color:#414844;flex-wrap:wrap;">
-          <span>🔄 ${v.cycle_jours}j</span>
-          <span>📈 ${(v.rendement_opt_kgha / 1000).toFixed(1)} T/ha max</span>
-          <span>Score: ${v.score_adaptation}/100</span>
+  // ── Cultures alternatives (4e, 5e, ... — section extensible) ──
+  if (alternatives.length > 0) {
+    // Bouton "Voir plus"
+    const expandSection = document.createElement('div');
+    expandSection.style.cssText = 'grid-column: 1 / -1; margin-top: 0.5rem;';
+    expandSection.innerHTML = `
+      <button id="btn-voir-plus" onclick="toggleAlternatives()"
+        style="width:100%;padding:0.85rem 1rem;background:linear-gradient(135deg,#f0f7f4,#e8f5e9);
+        border:2px dashed #2d6a4f;border-radius:12px;font-size:0.9rem;font-weight:700;
+        color:#2d6a4f;display:flex;justify-content:center;align-items:center;gap:0.5rem;
+        cursor:pointer;transition:all 0.3s ease;">
+        <span class="material-symbols-outlined" style="font-size:1.2rem;">expand_more</span>
+        Voir les autres cultures possibles (${alternatives.length})
+      </button>
+      <div id="alternatives-container" style="max-height:0;overflow:hidden;transition:max-height 0.5s ease;margin-top:0;">
+        <div id="alternatives-grid" style="display:grid;gap:0.75rem;padding-top:0.75rem;"></div>
+      </div>
+    `;
+    grid.appendChild(expandSection);
+
+    // Remplir les cartes alternatives (style compact)
+    const altGrid = expandSection.querySelector('#alternatives-grid');
+    alternatives.forEach((rec, i) => {
+      altGrid.appendChild(buildCropCard(rec, i + 3, true));
+    });
+  }
+
+  // ── Risque & ROI (basé sur Top 3 uniquement) ──
+  const avgScore = Math.round(top3.reduce((s,r) => s + r.score_final, 0) / top3.length);
+  document.getElementById('risk-level').textContent = avgScore >= 80 ? 'Bas' : avgScore >= 60 ? 'Moyen' : 'Élevé';
+  const bestRatio = top3[0]?.rendement_relatif || 1;
+  document.getElementById('roi-value').textContent = '+' + Math.round((bestRatio - 0.3) * 200) + '% ROI';
+}
+
+function toggleAlternatives() {
+  const container = document.getElementById('alternatives-container');
+  const btn = document.getElementById('btn-voir-plus');
+  const isOpen = container.style.maxHeight !== '0px' && container.style.maxHeight !== '';
+  
+  if (isOpen) {
+    container.style.maxHeight = '0';
+    btn.innerHTML = `
+      <span class="material-symbols-outlined" style="font-size:1.2rem;">expand_more</span>
+      Voir les autres cultures possibles
+    `;
+    btn.style.borderStyle = 'dashed';
+  } else {
+    container.style.maxHeight = container.scrollHeight + 500 + 'px';
+    btn.innerHTML = `
+      <span class="material-symbols-outlined" style="font-size:1.2rem;">expand_less</span>
+      Masquer les alternatives
+    `;
+    btn.style.borderStyle = 'solid';
+  }
+}
+
+function buildCropCard(rec, index, isCompact) {
+  const key = (rec.culture_fr || '').toLowerCase();
+  const img = CROP_IMAGES[key] || DEFAULT_IMG;
+  const icon = CULTURE_ICONS[key] || '🌱';
+  const color = getScoreColor(rec.score_final);
+  const niveauBadge = rec.niveau === 'Optimal'
+    ? '<span style="background:#c1ecd4;color:#1b4332;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Optimal</span>'
+    : rec.niveau === 'Suboptimal'
+      ? '<span style="background:#ffdcbd;color:#7d562d;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Suboptimal</span>'
+      : '<span style="background:#ffdad8;color:#55000b;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">Risqué</span>';
+
+  const varietes = (rec.varietes_top3 || []);
+  const varietesHTML = varietes.map(v => `
+    <div style="background:#f3f4f5;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;border-left:3px solid #012d1d;">
+      <div style="font-weight:700;font-size:0.9rem;color:#012d1d;">
+        ${v.variete}
+        ${v.inscrit_2024 ? '<span style="background:#c1ecd4;color:#1b4332;padding:1px 6px;border-radius:99px;font-size:0.65rem;font-weight:700;margin-left:4px;">✅ 2024</span>' : ''}
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:0.3rem;font-size:0.78rem;color:#414844;flex-wrap:wrap;">
+        <span>🔄 ${v.cycle_jours}j</span>
+        <span>📈 ${(v.rendement_opt_kgha / 1000).toFixed(1)} T/ha max</span>
+        <span>Score: ${v.score_adaptation}/100</span>
+      </div>
+    </div>
+  `).join('');
+
+  const card = document.createElement('div');
+
+  if (isCompact) {
+    // ── Style COMPACT pour les alternatives ──
+    card.style.cssText = 'background:#fff;border-radius:10px;overflow:hidden;border:1px solid rgba(193,200,194,0.3);display:flex;align-items:stretch;';
+    card.innerHTML = `
+      <div style="width:70px;min-height:80px;background:url(${img}) center/cover;flex-shrink:0;position:relative;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(1,45,29,0.7),transparent);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:1.6rem;">${icon}</span>
         </div>
       </div>
-    `).join('');
-
-    const card = document.createElement('div');
+      <div style="padding:0.65rem 0.85rem;flex:1;display:flex;flex-direction:column;justify-content:center;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+          <span style="font-weight:700;font-size:0.9rem;color:#012d1d;text-transform:capitalize;">${rec.culture_fr}</span>
+          ${niveauBadge}
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-weight:800;color:${color};font-size:0.95rem;">${rec.score_final}/100</span>
+          <div style="flex:1;height:5px;background:#e7e8e9;border-radius:3px;overflow:hidden;">
+            <div style="width:${rec.score_final}%;height:100%;background:${color};border-radius:3px;transition:width 1s ease;"></div>
+          </div>
+          <span style="font-size:0.75rem;color:#414844;">${rec.yield_predit_tha} T/ha</span>
+        </div>
+      </div>
+    `;
+  } else {
+    // ── Style COMPLET pour le Top 3 ──
     card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;border:1px solid rgba(193,200,194,0.3);margin-bottom:0;';
     card.innerHTML = `
       <div style="position:relative;height:140px;overflow:hidden;">
@@ -525,6 +615,9 @@ function renderResults(data) {
           <span style="color:#fff;font-weight:700;font-size:1rem;margin-left:4px;text-transform:capitalize;">${rec.culture_fr}</span>
         </div>
         <div style="position:absolute;top:10px;right:10px;">${niveauBadge}</div>
+        <div style="position:absolute;top:10px;left:10px;">
+          <span style="background:rgba(0,0,0,0.5);color:#fff;padding:2px 8px;border-radius:99px;font-size:0.65rem;font-weight:700;">#${index + 1}</span>
+        </div>
       </div>
       <div style="padding:1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
@@ -544,14 +637,8 @@ function renderResults(data) {
         </div>` : ''}
       </div>
     `;
-    grid.appendChild(card);
-  });
-
-  // ── Risque & ROI ──
-  const avgScore = Math.round(data.recommandations.reduce((s,r) => s + r.score_final, 0) / data.recommandations.length);
-  document.getElementById('risk-level').textContent = avgScore >= 80 ? 'Bas' : avgScore >= 60 ? 'Moyen' : 'Élevé';
-  const bestRatio = data.recommandations[0]?.rendement_relatif || 1;
-  document.getElementById('roi-value').textContent = '+' + Math.round((bestRatio - 0.3) * 200) + '% ROI';
+  }
+  return card;
 }
 
 // ══════════════════════════════════════════════
