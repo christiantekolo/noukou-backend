@@ -208,14 +208,14 @@
   <!-- PANNEAU DROIT -->
   <div class="right-panel">
     <a href="index.html" class="mobile-brand flex items-center gap-3 group decoration-none">
-  <img src="img/logo.png" alt="NOUKOU Logo" class="h-10 w-auto object-contain hidden" onload="this.classList.remove('hidden'); this.nextElementSibling.classList.add('hidden');" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
-  <a href="index.html" class="flex items-center gap-2">
-    <a href="index.html" class="relative flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border-2 border-emerald-500 group-hover:scale-105 transition-transform">
-      <span class="font-['Manrope'] font-black text-[#012d1d] text-sm tracking-tighter">NK</span>
-    </div>
-    <span class="font-['Manrope'] font-extrabold tracking-tighter text-[#012d1d] text-2xl group-hover:text-emerald-600 transition-colors">NOUKOU</span>
-  </div>
-</a>
+      <img src="img/logo.png" alt="NOUKOU Logo" class="h-10 w-auto object-contain hidden" onload="this.classList.remove('hidden'); this.nextElementSibling.classList.add('hidden');" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
+      <div class="flex items-center gap-2">
+        <div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border-2 border-emerald-500 group-hover:scale-105 transition-transform">
+          <span class="font-['Manrope'] font-black text-[#012d1d] text-sm tracking-tighter">NK</span>
+        </div>
+        <span class="font-['Manrope'] font-extrabold tracking-tighter text-[#012d1d] text-2xl group-hover:text-emerald-600 transition-colors">NOUKOU</span>
+      </div>
+    </a>
 
     <div class="form-box">
       <div class="form-header">
@@ -405,6 +405,15 @@
       // Si déjà connecté, rediriger
       if (localStorage.getItem('noukou_token') || sessionStorage.getItem('noukou_token')) {
         window.location.href = 'dashboard.html';
+      }
+      // GSAP Animations
+      if (typeof gsap !== 'undefined') {
+        const tl = gsap.timeline();
+        tl.from(".left-panel-content", { x: -50, opacity: 0, duration: 0.8, ease: "power3.out" })
+          .from(".perks .perk", { y: 20, opacity: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }, "-=0.4")
+          .from(".form-box", { x: 50, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+          .from(".form-header > *", { y: -10, opacity: 0, duration: 0.4, stagger: 0.1 }, "-=0.2")
+          .from(".field, .row-opts, .submit-btn, .divider, .auth-google", { y: 20, opacity: 0, duration: 0.4, stagger: 0.1, ease: "power2.out" }, "-=0.2");
       }
     });
   </script>

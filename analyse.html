@@ -699,6 +699,13 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
         loader.classList.add('hidden');
         document.getElementById('results-container').classList.remove('hidden');
         renderResults(data);
+        
+        // GSAP Animation for results
+        if (typeof gsap !== 'undefined') {
+          gsap.from("#results-container > div:nth-child(1)", { y: -30, opacity: 0, duration: 0.6, ease: "power3.out" });
+          gsap.from("#crops-grid > div", { scale: 0.9, opacity: 0, duration: 0.5, stagger: 0.15, ease: "back.out(1.5)", delay: 0.2 });
+          gsap.from("#weather-container, #chart-container, #weather-container + div", { y: 40, opacity: 0, duration: 0.7, stagger: 0.2, ease: "power2.out", delay: 0.4 });
+        }
       }, 800);
     }, remainingWait);
 
@@ -718,6 +725,9 @@ document.getElementById('launch-btn').addEventListener('click', async () => {
 
 document.addEventListener('DOMContentLoaded', initMap);
 </script>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
 <script>requireAuth();</script>
 </body></html>

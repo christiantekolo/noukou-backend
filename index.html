@@ -325,12 +325,47 @@
 <span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider mt-1">Profil</span>
 </a>
 </nav>
-<!-- Logout button visibility script -->
+<!-- GSAP & ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<!-- Logout button visibility script & Animations -->
 <script>
 if(localStorage.getItem('noukou_token')||sessionStorage.getItem('noukou_token')){
   const lb=document.getElementById('nav-logout-btn');
-  if(lb) lb.classList.remove('hidden');
-  if(lb) lb.classList.add('flex');
+  if(lb) {
+      lb.classList.remove('hidden');
+      lb.classList.add('flex');
+  }
 }
+
+// UI/UX Pro Max - Animations GSAP
+document.addEventListener("DOMContentLoaded", (event) => {
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero Animation
+  const heroTl = gsap.timeline();
+  heroTl.from("h1", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.2 })
+        .from("h1 + p", { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.6")
+        .from(".bg-primary-fixed, button", { y: 20, opacity: 0, duration: 0.6, stagger: 0.2, ease: "back.out(1.7)" }, "-=0.4");
+
+  // Trust Bar
+  gsap.from(".opacity-60 > div", {
+      opacity: 0, y: 20, stagger: 0.2, duration: 0.8, ease: "power2.out",
+      scrollTrigger: { trigger: ".bg-surface-container-low", start: "top 85%" }
+  });
+
+  // How it works steps
+  gsap.from(".space-y-8 > div", {
+      x: -50, opacity: 0, stagger: 0.3, duration: 0.8, ease: "power3.out",
+      scrollTrigger: { trigger: ".space-y-8", start: "top 80%" }
+  });
+
+  // Features Cards
+  gsap.from(".grid-cols-1.md\\:grid-cols-3 > div", {
+      y: 60, opacity: 0, stagger: 0.2, duration: 0.8, ease: "back.out(1.2)",
+      scrollTrigger: { trigger: ".grid-cols-1.md\\:grid-cols-3", start: "top 80%" }
+  });
+});
 </script>
 </body></html>
