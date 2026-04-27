@@ -115,16 +115,18 @@ CULTURES_PAR_ZONE = {
                   "Onion","Tomato","Pepper"],
     "Kara"     : ["Maize","Sorghum","Millet","Cowpea",
                   "Groundnuts (In Shell)","Yams","Cotton",
-                  "Tomato","Cabbage","Onion"],
+                  "Tomato","Onion"],
     "Centrale" : ["Maize","Sorghum","Yams","Cassava",
                   "Groundnuts (In Shell)","Cowpea","Cotton",
                   "Tomato","Okra","Sweet potato"],
     "Plateaux" : ["Maize","Cassava","Yams","Rice",
                   "Beans (mixed)","Soybean","Cotton","Cowpea",
-                  "Tomato","Eggplant","Pepper","Sweet potato"],
+                  "Tomato","Eggplant","Pepper","Sweet potato",
+                  "Cabbage"],
     "Maritime" : ["Maize","Cassava","Rice",
                   "Beans (mixed)","Soybean","Cowpea",
-                  "Tomato","Okra","Eggplant","Sweet potato"],
+                  "Tomato","Okra","Eggplant","Sweet potato",
+                  "Cabbage"],
 }
 
 # ============================================================
@@ -619,10 +621,24 @@ def recommend_for_gps(lat, lon, token=None, top_n=3, verbose=False):
         # Modèle B — rendement prédit
         try:
             if culture_en in CULTURES_MARAICHERES_EN:
-                yield_predit = YIELD_REFERENCE_CULTURES_MARAICHERES.get(
+                yield_base = YIELD_REFERENCE_CULTURES_MARAICHERES.get(
                     culture_en, 2.0)
-                source_yield = "reference_faostat"
-                poids_B      = 0.20  # poids réduit — pas de ML
+                # Appliquer un coefficient de pénalité par zone
+                # Les maraîchères performent mieux en Maritime/Plateaux (irrigué)
+                # et moins bien en Savanes/Kara (sec)
+                zone_coeff = {
+                    "Maritime": 1.0, "Plateaux": 0.95,
+                    "Centrale": 0.80, "Kara": 0.65, "Savanes": 0.55
+                }
+                # Aussi pénaliser si le pH est loin de l'optimal (6.0-7.0)
+                ph_penalty = 1.0
+                if soil["soil_ph"] < 5.5 or soil["soil_ph"] > 7.5:
+                    ph_penalty = 0.80
+                elif soil["soil_ph"] < 5.8 or soil["soil_ph"] > 7.2:
+                    ph_penalty = 0.90
+                yield_predit = round(yield_base * zone_coeff.get(zone, 0.75) * ph_penalty, 2)
+                source_yield = "reference_faostat_ajuste"
+                poids_B      = 0.15  # poids très réduit — pas de ML
             else:
                 df_feat, _ = get_features_from_gps(
                     lat, lon, culture_en, token=token, verbose=False)
@@ -660,10 +676,18 @@ def recommend_for_gps(lat, lon, token=None, top_n=3, verbose=False):
         yield_ratio = min(1.5, yield_predit/yield_ref if yield_ref>0 else 1.0)
         score_B     = round(yield_ratio / 1.5 * 100)
 
-        # Si pas de variété dans le catalogue, le score A ne doit pas plomber le score final,
-        # mais il ne doit pas non plus être gonflé artificiellement (ce qui faisait gagner le Chou partout).
-        # On utilise score_B mais on limite le score A par défaut à 60% max pour les cultures secondaires.
-        score_A = varietes[0]["score_adaptation"] if varietes else min(60, score_B)
+        # Si pas de variété dans le catalogue, pénaliser fortement.
+        # Les cultures ML avec de vraies variétés doivent TOUJOURS dominer
+        # les cultures maraîchères sans données de catalogue.
+        if varietes:
+            score_A = varietes[0]["score_adaptation"]
+        elif culture_en in CULTURES_MARAICHERES_EN:
+            # Maraîchères sans catalogue : plafond bas (45) pour ne jamais
+            # battre les cultures principales qui ont des variétés réelles
+            score_A = min(45, score_B)
+        else:
+            # Autres cultures sans variétés (rare) : score neutre
+            score_A = min(55, score_B)
         
         score_final = round(poids_A * score_A + poids_B * score_B)
 
