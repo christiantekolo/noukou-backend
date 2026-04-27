@@ -660,8 +660,10 @@ def recommend_for_gps(lat, lon, token=None, top_n=3, verbose=False):
         yield_ratio = min(1.5, yield_predit/yield_ref if yield_ref>0 else 1.0)
         score_B     = round(yield_ratio / 1.5 * 100)
 
-        # Si pas de variété dans le catalogue, le score A ne doit pas plomber le score final (on prend un score neutre/bon basé sur le ML)
-        score_A = varietes[0]["score_adaptation"] if varietes else max(75, score_B)
+        # Si pas de variété dans le catalogue, le score A ne doit pas plomber le score final,
+        # mais il ne doit pas non plus être gonflé artificiellement (ce qui faisait gagner le Chou partout).
+        # On utilise score_B mais on limite le score A par défaut à 60% max pour les cultures secondaires.
+        score_A = varietes[0]["score_adaptation"] if varietes else min(60, score_B)
         
         score_final = round(poids_A * score_A + poids_B * score_B)
 
