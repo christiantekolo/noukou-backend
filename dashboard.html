@@ -272,13 +272,13 @@
     <span class="text-[11px] font-semibold mt-1">Profil</span>
   </a>
 </nav>
-<!-- FAB (Suppressed based on logic but keeping placeholder for structure) -->
 <script src="js/mock-data.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const portfolio = getPortfolio();
+    const user = getNoukouUser ? getNoukouUser() : null;
+    const userName = (user && user.name) ? user.name.split(' ')[0] : 'Agriculteur';
 
-    // ── KPIs ──
     if (portfolio.length > 0) {
         const latest = portfolio[0];
         const recs = latest.recommandations || [];
@@ -287,51 +287,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const roi = Math.round((bestRatio - 0.3) * 200);
 
         document.getElementById('kpi-roi').textContent = '+' + roi + '%';
-
         const riskLabel = avgScore >= 80 ? 'Bas' : avgScore >= 60 ? 'Modéré' : 'Élevé';
-        const riskGrade = avgScore >= 80 ? 'A' : avgScore >= 60 ? 'B+' : 'C';
         const riskPct = Math.min(100, Math.round((100 - avgScore) * 1.2));
         document.getElementById('kpi-risk').textContent = riskLabel;
         document.getElementById('kpi-risk-bar').style.width = riskPct + '%';
 
-        // Crops chips
         const cropsDiv = document.getElementById('kpi-crops');
-        const chipColors = [
-            'bg-primary-fixed text-on-primary-fixed',
-            'bg-secondary-fixed text-on-secondary-fixed',
-            'bg-surface-container text-on-surface-variant'
-        ];
+        const chipColors = ['bg-primary-fixed text-on-primary-fixed','bg-secondary-fixed text-on-secondary-fixed','bg-surface-container text-on-surface-variant'];
         cropsDiv.innerHTML = recs.map((r, i) =>
             `<span class="${chipColors[Math.min(i, 2)]} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">${r.culture_fr}</span>`
         ).join('');
-    } else {
-        document.getElementById('kpi-roi').textContent = '0%';
-        document.getElementById('kpi-risk').textContent = '-';
-        document.getElementById('kpi-risk-bar').style.width = '0%';
-        document.getElementById('kpi-crops').innerHTML = '<span class="text-xs text-outline">Aucune recommandation</span>';
-    }
 
-    // ── Leaflet Map with markers ──
-    const map = L.map('dashboard-map').setView([8.6195, 0.8248], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    setTimeout(() => map.invalidateSize(), 200);
-
-    portfolio.forEach(entry => {
-        if (entry.coordonnees) {
-            const lat = parseFloat(entry.coordonnees.lat);
-            const lng = parseFloat(entry.coordonnees.lon);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                const topCrop = entry.recommandations?.[0]?.culture_fr || 'Analyse';
-                L.marker([lat, lng])
-                    .addTo(map)
-                    .bindPopup(`<b>${entry.zone}</b><br>${topCrop} — Score: ${entry.recommandations?.[0]?.score_final || '?'}%`);
-            }
-        }
-    });
-
-    // ── Recent Analyses list ──
-    const listDiv = document.getElementById('analyses-list');
-    if (portfolio.length > 0) {
+        const listDiv = document.getElementById('analyses-list');
         listDiv.innerHTML = portfolio.slice(0, 5).map(entry => {
             const topCrop = entry.recommandations?.[0]?.culture_fr || 'Analyse';
             const score = entry.recommandations?.[0]?.score_final || '?';
@@ -354,9 +321,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
         }).join('');
+
     } else {
-        listDiv.innerHTML = '<div class="text-center py-8 text-outline">Aucune analyse récente. Allez sur la page Analyser pour commencer !</div>';
+        // ── NOUVEAU UTILISATEUR — bel état d'accueil ──
+        document.getElementById('kpi-roi').innerHTML = '<span style="font-size:1.8rem">👋</span>';
+        const roiDesc = document.getElementById('kpi-roi').nextElementSibling;
+        if (roiDesc) roiDesc.textContent = 'Bienvenue ' + userName + ' !';
+
+        document.getElementById('kpi-risk').textContent = '—';
+        document.getElementById('kpi-risk-bar').style.width = '0%';
+
+        document.getElementById('kpi-crops').innerHTML =
+            '<div class="flex flex-col items-center gap-2 w-full py-2">' +
+            '<span class="material-symbols-outlined text-3xl text-outline/40">spa</span>' +
+            '<span class="text-xs text-outline text-center">Vos cultures recommandées apparaîtront ici après votre première analyse</span>' +
+            '</div>';
+
+        document.getElementById('analyses-list').innerHTML =
+            '<div class="flex flex-col items-center justify-center py-10 text-center space-y-4">' +
+            '<div class="w-20 h-20 rounded-full bg-primary-fixed/30 flex items-center justify-center">' +
+            '<span class="material-symbols-outlined text-4xl text-primary">query_stats</span></div>' +
+            '<div><h4 class="font-headline font-bold text-lg text-primary">Aucune analyse pour le moment</h4>' +
+            '<p class="text-sm text-outline mt-1 max-w-xs mx-auto">Sélectionnez une parcelle GPS et lancez votre première analyse IA pour découvrir les meilleures cultures adaptées à votre terrain.</p></div>' +
+            '<a href="analyse.html" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-primary-container transition-all active:scale-95 shadow-lg">' +
+            '<span class="material-symbols-outlined text-base">bolt</span> Lancer ma première analyse</a></div>';
     }
+
+    // ── Carte Leaflet (toujours visible) ──
+    const map = L.map('dashboard-map').setView([8.6195, 0.8248], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    setTimeout(() => map.invalidateSize(), 200);
+
+    portfolio.forEach(entry => {
+        if (entry.coordonnees) {
+            const lat = parseFloat(entry.coordonnees.lat);
+            const lng = parseFloat(entry.coordonnees.lon);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const topCrop = entry.recommandations?.[0]?.culture_fr || 'Analyse';
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup('<b>' + entry.zone + '</b><br>' + topCrop + ' — Score: ' + (entry.recommandations?.[0]?.score_final || '?') + '%');
+            }
+        }
+    });
 });
 </script>
 <script>requireAuth();</script>
