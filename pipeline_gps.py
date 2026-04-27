@@ -327,11 +327,21 @@ def get_climate_from_gps(lat, lon):
             r = requests.get(url, params=params, timeout=30)
             r.raise_for_status()
             p = r.json()["properties"]["parameter"]
+            # NASA POWER utilise -999 pour les données manquantes
+            precip_raw = float(p["PRECTOTCORR"].get("ANN", 0))
+            temp_raw   = float(p["T2M"].get("ANN", 27.0))
+            hum_raw    = float(p["RH2M"].get("ANN", 70.0))
+            solar_raw  = float(p["ALLSKY_SFC_SW_DWN"].get("ANN", 18.5))
+            # Protection contre valeurs -999 (données manquantes NASA)
+            if precip_raw < 0: precip_raw = 3.15  # ~1150mm/an par défaut
+            if temp_raw < -50: temp_raw = 27.0
+            if hum_raw < 0:    hum_raw = 70.0
+            if solar_raw < 0:  solar_raw = 18.5
             return {
-                "precip_annuel": round(float(p["PRECTOTCORR"].get("ANN",0))*365, 1),
-                "temp_moyenne" : round(float(p["T2M"].get("ANN", 27.0)), 2),
-                "humidity_rel" : round(float(p["RH2M"].get("ANN", 70.0)), 2),
-                "solar_rad"    : round(float(p["ALLSKY_SFC_SW_DWN"].get("ANN",18.5)), 3),
+                "precip_annuel": round(precip_raw * 365, 1),
+                "temp_moyenne" : round(temp_raw, 2),
+                "humidity_rel" : round(hum_raw, 2),
+                "solar_rad"    : round(solar_raw, 3),
             }
         except Exception:
             time.sleep(2 ** attempt)
@@ -378,6 +388,10 @@ def predict_hybrid(X_new, regions):
     pred = np.expm1(pred)
     # Sécurité : empêcher les valeurs négatives
     pred = np.maximum(pred, 0.0)
+    # Plafonnement réaliste par culture (éviter les prédictions explosives)
+    # Les rendements max documentés au Togo ne dépassent jamais ces seuils
+    MAX_YIELD = 25.0  # Aucune culture au Togo ne dépasse 25 T/ha
+    pred = np.minimum(pred, MAX_YIELD)
     return pred
 
 # ============================================================
@@ -387,11 +401,14 @@ YEAR_MIN = 1995
 YEAR_MAX = 2022
 
 def get_features_from_gps(lat, lon, culture_en,
-                           token=None, verbose=False):
-    """Extraire le vecteur de features pour le Modèle B."""
+                           token=None, verbose=False,
+                           _cached_clim=None, _cached_soil=None):
+    """Extraire le vecteur de features pour le Modèle B.
+    Accepte des données clim/sol pré-calculées pour éviter les appels API redondants.
+    """
     zone  = detect_zone_togo(lat, lon)
-    clim  = get_climate_from_gps(lat, lon)
-    soil  = get_soil_safe(lat, lon, token)
+    clim  = _cached_clim if _cached_clim else get_climate_from_gps(lat, lon)
+    soil  = _cached_soil if _cached_soil else get_soil_safe(lat, lon, token)
 
     now_year       = 2025
     harvest_month  = 10
@@ -690,7 +707,8 @@ def recommend_for_gps(lat, lon, token=None, top_n=3, verbose=False):
                 poids_B      = 0.15  # poids très réduit — pas de ML
             else:
                 df_feat, _ = get_features_from_gps(
-                    lat, lon, culture_en, token=token, verbose=False)
+                    lat, lon, culture_en, token=token, verbose=False,
+                    _cached_clim=clim, _cached_soil=soil)
                 yield_predit = predict_hybrid(df_feat, [zone])[0]
                 source_yield = "modele_B"
                 poids_B      = 0.40
