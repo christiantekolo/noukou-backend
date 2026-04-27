@@ -273,12 +273,39 @@ def get_soil_safe(lat, lon, token=None):
             soil["_note"] = f"GPS snapé depuis ({lat:.3f},{lon:.3f})"
         return soil
     except Exception:
+        # ── Fallback INTERPOLÉ par coordonnées GPS ──
+        # Au lieu d'une constante plate par zone, on modifie les
+        # propriétés en fonction de la position exacte (lat/lon).
+        # Gradients basés sur les tendances pédologiques du Togo :
+        # - pH augmente légèrement du sud vers le nord
+        # - Argile diminue vers le nord (sols plus sableux en Savanes)
+        # - Carbone organique diminue vers le nord (moins de biomasse)
         fb = SOL_MOYEN_PAR_ZONE.get(zone,
              SOL_MOYEN_PAR_ZONE["Centrale"]).copy()
-        fb["_source"] = f"fallback_harveststat_{zone}"
+
+        lat_norm = (lat - 6.0) / 5.2    # 0→1 (Maritime→Savanes)
+        lon_norm = lon / 1.8             # 0→1 (Ouest→Est)
+
+        # pH : gradient nord (+) et altitude est (-)
+        ph_var = (lat_norm - 0.5) * 0.6 - (lon_norm - 0.5) * 0.3
+        fb["soil_ph"] = round(max(4.5, min(8.0, fb["soil_ph"] + ph_var)), 2)
+
+        # Argile : plus élevée au sud/ouest (bas-fonds), moins au nord
+        clay_var = -(lat_norm - 0.5) * 8 + (lon_norm - 0.5) * 4
+        fb["clay_pct"] = round(max(5, min(55, fb["clay_pct"] + clay_var)), 1)
+
+        # Carbone organique : plus élevé au sud (zones humides)
+        soc_var = -(lat_norm - 0.5) * 0.25
+        fb["soc_gkg"] = round(max(0.15, min(1.5, fb["soc_gkg"] + soc_var)), 3)
+
+        # CEC corrélé à l'argile et au carbone
+        fb["cec_cmol_kg"] = round(max(3.0, min(15.0,
+            fb["clay_pct"] * 0.18 + fb["soc_gkg"] * 5.0)), 2)
+
+        fb["_source"] = f"fallback_interpole_{zone}"
         fb["_note"]   = (
-            f"iSDA indisponible — moyennes HarvestStat Togo "
-            f"zone {zone}. Précision réduite."
+            f"iSDA indisponible — estimation interpolée GPS "
+            f"zone {zone} ({lat:.3f},{lon:.3f}). Précision réduite."
         )
         return fb
 
